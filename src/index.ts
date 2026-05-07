@@ -8,6 +8,8 @@ export * from './core/InvitationManager';
 export * from './core/ModerationManager';
 export * from './core/TemplateManager';
 export * from './core/ImpactManager';
+export * from './core/GovernanceManager';
+export * from './core/ResourceManager';
 export * from './hooks/useSpace';
 export * from './hooks/useMembership';
 export * from './hooks/useCanInSpace';
