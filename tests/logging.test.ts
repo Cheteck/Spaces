@@ -15,7 +15,7 @@ describe('Logging', () => {
     await sm.createSpace({
       name: 'Logged Space',
       type: 'community',
-      mission: 'Log things',
+      mission: 'Mission text for logs',
       values: ['L'],
       visibility: 'PUBLIC',
       ownerId: 'u1'
