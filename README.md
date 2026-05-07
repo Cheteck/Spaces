@@ -88,3 +88,9 @@ import { createSpaceProxy } from '@ijideals/spaces';
 const spaceIam = createSpaceProxy(iam, 'space_123');
 const allowed = await spaceIam.can(ctx, 'post.create');
 ```
+
+### Advanced Logic
+- **Space Types**: Community, Marketplace, Organization, Team, Creator, Brand.
+- **Visibility**: Public, Private, Restricted, Hidden.
+- **Membership Status**: Pending, Active, Banned, Left.
+- **Capabilities**: Activer/Désactiver le chat, la marketplace, etc. par Space.
