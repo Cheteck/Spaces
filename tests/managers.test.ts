@@ -12,7 +12,7 @@ describe('SpaceManager', () => {
   it('should create a space', async () => {
     const space = await spaceManager.createSpace({
       name: 'Test Space',
-      slug: 'test-space',
+      type: 'community',
       visibility: 'PUBLIC',
       ownerId: 'user1',
     });
@@ -23,8 +23,8 @@ describe('SpaceManager', () => {
   });
 
   it('should list spaces', async () => {
-    await spaceManager.createSpace({ name: 'S1', slug: 's1', visibility: 'PUBLIC', ownerId: 'u1' });
-    await spaceManager.createSpace({ name: 'S2', slug: 's2', visibility: 'PRIVATE', ownerId: 'u1' });
+    await spaceManager.createSpace({ name: 'S1', type: 'community', visibility: 'PUBLIC', ownerId: 'u1' });
+    await spaceManager.createSpace({ name: 'S2', type: 'brand', visibility: 'PRIVATE', ownerId: 'u1' });
     
     const list = await spaceManager.listSpaces();
     expect(list.length).toBe(2);
