@@ -3,6 +3,9 @@ import { describe, it, expect, vi } from 'vitest';
 vi.mock('react', () => ({
   useState: (v: any) => [v, vi.fn()],
   useEffect: (f: any) => f(),
+  useMemo: (f: any) => f(),
+  createContext: () => ({ Provider: ({ children }: any) => children }),
+  useContext: () => ({ spaceManager: {}, membershipManager: {}, governanceManager: {}, impactManager: {} }),
 }));
 
 import { 
