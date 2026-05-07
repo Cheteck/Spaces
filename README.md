@@ -79,3 +79,12 @@ if (!decision.allowed) {
 
 ## Licence
 MIT - Réalisé par IJIDeals.
+
+### Next.js Proxy (Next.js 16+)
+```typescript
+import { createSpaceProxy } from '@ijideals/spaces';
+
+// Crée un proxy IAM qui injecte automatiquement le spaceId
+const spaceIam = createSpaceProxy(iam, 'space_123');
+const allowed = await spaceIam.can(ctx, 'post.create');
+```
