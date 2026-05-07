@@ -6,7 +6,7 @@ export type SpaceRole =
   | 'SUBSCRIBER' 
   | 'GUARDIAN' 
   | 'FACILITATOR'
-  | 'impact_creator' | 'contributor' | 'supporter' | 'MEMBER' | 'VISITOR'; // Compatibility
+  | 'impact_creator' | 'contributor' | 'supporter' | 'MEMBER' | 'VISITOR';
 
 export type SpaceVisibility = 'PUBLIC' | 'PRIVATE' | 'HIDDEN' | 'RESTRICTED';
 
@@ -24,6 +24,17 @@ export type SpaceType =
 export type VerificationLevel = 'none' | 'basic' | 'verified' | 'official' | 'institutional';
 
 export type MembershipStatus = 'pending' | 'active' | 'banned' | 'left';
+
+export type SpaceModuleType = 
+  | 'posts' | 'comments' | 'chat' | 'products' | 'events' | 'files' 
+  | 'jobs' | 'analytics' | 'media' | 'subscriptions'
+  | 'ECOMMERCE' | 'MEMBERS' | 'PROMOTIONS' | 'BLOG' | 'API_ACCESS' | 'VERIFIED';
+
+export interface ModuleAccess {
+  enabled: boolean;
+  locked: boolean;
+  tier: 'free' | 'pro' | 'ultimate';
+}
 
 export interface SpaceCapabilities {
   marketplace?: boolean;
@@ -56,8 +67,10 @@ export interface Space {
   ownerId: string;
   organizationId?: string;
   workspaceId?: string;
+  ownerLockedUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
   metadata?: Record<string, any>;
 }
 
@@ -69,6 +82,9 @@ export interface Membership {
   status: MembershipStatus;
   joinedAt: Date;
   metadata?: Record<string, any>;
+  spaceRole?: {
+    permissions: Array<{ key: string }>;
+  };
 }
 
 export interface Invitation {
@@ -92,95 +108,50 @@ export interface OwnershipTransfer {
   createdAt: Date;
 }
 
-export interface ImpactReport {
-  id: string;
-  spaceId: string;
-  type: 'social' | 'environmental' | 'educational' | 'economic';
-  description: string;
-  metrics: Record<string, number>;
-  reportedAt: Date;
+export interface SpacePermissions {
+  canManageSpace: boolean;
+  canManageMembers: boolean;
+  canManageRoles: boolean;
+  canPost: boolean;
+  canModerate: boolean;
+  canEditSpace: boolean;
+  canDeleteSpace: boolean;
+  canInviteMembers: boolean;
+  canViewInsights: boolean;
+  canTransferOwnership: boolean;
+  canManageBoutique: boolean;
+  canAccessChat: boolean;
+  canAccessProducts: boolean;
+  canAccessAnalytics: boolean;
 }
+
+export interface UserPermissions {
+  canSeeFullProfile: boolean;
+  canSeePosts: boolean;
+  canSeeExperience: boolean;
+  canSeeEducation: boolean;
+  canSeeSkills: boolean;
+  canSeeSpaces: boolean;
+  canSeeContactInfo: boolean;
+  canMessage: boolean;
+}
+
+export interface UserSettings {
+  showEmail: boolean;
+  showPhoneNumber: boolean;
+  showExperience: boolean;
+  showEducation: boolean;
+  showSkills: boolean;
+  showSpaces: boolean;
+}
+
+export type ProfileVisibility = 'PUBLIC' | 'PRIVATE' | 'FOLLOWERS_ONLY';
 
 export interface SpacePlugin {
   name: string;
   onInit?: (manager: any) => void;
   onSpaceCreated?: (space: Space) => void;
   onMemberJoined?: (membership: Membership) => void;
-}
-
-export interface Report {
-  id: string;
-  spaceId: string;
-  reportedBy: string;
-  targetId: string;
-  targetType: 'user' | 'post' | 'comment';
-  reason: string;
-  status: 'pending' | 'reviewed' | 'action_taken' | 'dismissed';
-  createdAt: Date;
-}
-
-export interface Ban {
-  id: string;
-  spaceId: string;
-  userId: string;
-  reason: string;
-  bannedBy: string;
-  expiresAt?: Date;
-  createdAt: Date;
-  isShadowBan: boolean;
-}
-
-export interface Proposal {
-  id: string;
-  spaceId: string;
-  creatorId: string;
-  title: string;
-  description: string;
-  status: 'draft' | 'active' | 'passed' | 'rejected';
-  options: string[];
-  expiresAt: Date;
-  createdAt: Date;
-}
-
-export interface Vote {
-  id: string;
-  proposalId: string;
-  userId: string;
-  option: string;
-  votedAt: Date;
-}
-
-export interface CharterVersion {
-  version: number;
-  content: string;
-  mission: string;
-  values: string[];
-  approvedAt: Date;
-  approvedBy: string;
-}
-
-export interface Charter {
-  id: string;
-  spaceId: string;
-  currentVersion: number;
-  versions: CharterVersion[];
-}
-
-export interface SharedResource {
-  id: string;
-  spaceId: string;
-  ownerId: string;
-  name: string;
-  type: 'tool' | 'local' | 'skill' | 'media';
-  availability: 'available' | 'booked' | 'maintenance';
-}
-
-export interface Booking {
-  id: string;
-  resourceId: string;
-  userId: string;
-  startTime: Date;
-  endTime: Date;
 }
 
 export interface SpaceContext {
@@ -192,10 +163,17 @@ export interface SpaceContext {
   capabilities?: SpaceCapabilities;
   visibility?: SpaceVisibility;
   isOwner?: boolean;
+  restrictedReason?: string;
 }
 
 declare module '@ijideals/iam-core' {
   interface IAMContext {
     space?: SpaceContext;
+    products?: any;
   }
 }
+
+export * from './impact';
+export * from './governance';
+export * from './resources';
+export * from './charter';
