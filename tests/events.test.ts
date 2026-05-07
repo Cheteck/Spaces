@@ -7,7 +7,7 @@ describe('Events', () => {
     const cb = vi.fn();
     events.on('space.created', cb);
     const sm = new SpaceManager();
-    await sm.createSpace({ name: 'S', type: 'impact', mission: 'M', values: ['V'], visibility: 'PUBLIC', ownerId: 'u1' });
+    await sm.createSpace({ name: 'Event Space', type: 'impact', mission: 'Mission text here', values: ['V'], visibility: 'PUBLIC', ownerId: 'u1' });
     expect(cb).toHaveBeenCalled();
   });
 });
