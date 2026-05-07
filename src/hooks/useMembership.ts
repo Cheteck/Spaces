@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Membership } from '../types';
-import { MembershipManager } from '../core/MembershipManager';
+import { useSpaces } from './SpacesProvider';
 
-export function useMembership(spaceId: string, userId: string, membershipManager: MembershipManager) {
+export function useMembership(spaceId: string, userId: string) {
+  const { membershipManager } = useSpaces();
   const [membership, setMembership] = useState<Membership | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     let isMounted = true;
-    
     setLoading(true);
+    
     membershipManager.getMembership(spaceId, userId)
       .then(data => {
         if (isMounted) {
