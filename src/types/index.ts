@@ -127,3 +127,40 @@ declare module '@ijideals/iam-core' {
     space?: SpaceContext;
   }
 }
+
+export interface Proposal {
+  id: string;
+  spaceId: string;
+  creatorId: string;
+  title: string;
+  description: string;
+  status: 'draft' | 'active' | 'passed' | 'rejected';
+  options: string[];
+  expiresAt: Date;
+  createdAt: Date;
+}
+
+export interface Vote {
+  id: string;
+  proposalId: string;
+  userId: string;
+  option: string;
+  votedAt: Date;
+}
+
+export interface SharedResource {
+  id: string;
+  spaceId: string;
+  ownerId: string;
+  name: string;
+  type: 'tool' | 'local' | 'skill' | 'media';
+  availability: 'available' | 'booked' | 'maintenance';
+}
+
+export interface Booking {
+  id: string;
+  resourceId: string;
+  userId: string;
+  startTime: Date;
+  endTime: Date;
+}
