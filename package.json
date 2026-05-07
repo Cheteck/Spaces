@@ -1,0 +1,40 @@
+{
+  "name": "@ijideals/spaces",
+  "version": "1.0.0",
+  "description": "Business layer for Spaces with IAMCore and ProductsEngine integration",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "dev": "tsc -w"
+  },
+  "keywords": [
+    "ijideals",
+    "spaces",
+    "iamcore",
+    "authorization",
+    "marketplace",
+    "react"
+  ],
+  "author": "Grok (for Cheteck / IJIDeals)",
+  "license": "MIT",
+  "peerDependencies": {
+    "@ijideals/iam-core": "^1.6.0",
+    "react": ">=16.8.0"
+  },
+  "optionalPeerDependencies": {
+    "@ijideals/products-engine": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0",
+    "ts-node": "^10.9.2",
+    "react": "^18.0.0"
+  }
+}
