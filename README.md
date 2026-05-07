@@ -91,3 +91,33 @@ Spaces utilise une architecture propre et modulaire :
 ---
 
 **Made with ❤️ by IJIDeals**
+
+### Gouvernance & Votes
+Spaces inclut un module de gouvernance pour faciliter la prise de décision collective.
+```typescript
+const governance = new GovernanceManager();
+const proposal = await governance.createProposal({
+  spaceId: 's1',
+  creatorId: 'u1',
+  title: 'Nouvelle charte',
+  description: 'Votons pour la nouvelle charte communautaire.',
+  options: ['Oui', 'Non'],
+  expiresAt: new Date(Date.now() + 86400000)
+});
+
+await governance.vote(proposal.id, 'u2', 'Oui');
+```
+
+### Partage de Ressources
+Partagez des outils, des locaux ou des compétences au sein de vos espaces.
+```typescript
+const resources = new ResourceManager();
+const tool = await resources.addResource({
+  spaceId: 's1',
+  ownerId: 'u1',
+  name: 'Perceuse Bosch',
+  type: 'tool'
+});
+
+await resources.bookResource(tool.id, 'u3', new Date(), new Date());
+```
