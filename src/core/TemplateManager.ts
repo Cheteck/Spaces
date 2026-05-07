@@ -1,4 +1,6 @@
 import { communityTemplate, marketplaceTemplate } from '../templates';
+import { ngoTemplate } from '../templates/ngo';
+import { schoolTemplate } from '../templates/school';
 
 export interface SpaceTemplate {
   name: string;
@@ -12,6 +14,8 @@ export class TemplateManager {
   constructor() {
     this.register('community', communityTemplate as SpaceTemplate);
     this.register('marketplace', marketplaceTemplate as SpaceTemplate);
+    this.register('ngo', ngoTemplate as SpaceTemplate);
+    this.register('school', schoolTemplate as SpaceTemplate);
   }
 
   register(name: string, template: SpaceTemplate) {
