@@ -34,18 +34,21 @@ export class SpaceManager {
     };
 
     this.spaces.set(id, space);
-    
-    // Emit internal events
     events.emit('space.created', space);
-    
-    // Trigger plugins
     this.plugins.forEach(p => p.onSpaceCreated?.(space));
-    
     return space;
   }
 
   async getSpace(id: string): Promise<Space | undefined> {
     return this.spaces.get(id);
+  }
+
+  async listByOrganization(orgId: string): Promise<Space[]> {
+    return Array.from(this.spaces.values()).filter(s => s.organizationId === orgId);
+  }
+
+  async listByWorkspace(wsId: string): Promise<Space[]> {
+    return Array.from(this.spaces.values()).filter(s => s.workspaceId === wsId);
   }
 
   async updateSpace(id: string, data: Partial<Space>): Promise<Space> {
