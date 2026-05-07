@@ -1,8 +1,10 @@
 import { Membership, SpaceRole, MembershipStatus } from '../types';
 import { events } from '../core/EventEmitter';
+import { IMembershipAdapter } from '../adapters';
+import { MemoryMembershipAdapter } from '../adapters/MemoryAdapter';
 
 export class MembershipManager {
-  private memberships: Map<string, Membership> = new Map();
+  constructor(private adapter: IMembershipAdapter = new MemoryMembershipAdapter()) {}
 
   async addMember(spaceId: string, userId: string, role: SpaceRole = 'MEMBER', status: MembershipStatus = 'active'): Promise<Membership> {
     const id = Math.random().toString(36).substring(2, 11);
@@ -14,44 +16,36 @@ export class MembershipManager {
       status,
       joinedAt: new Date(),
     };
-    this.memberships.set(id, membership);
+    await this.adapter.create(membership);
     events.emit('member.joined', membership);
     return membership;
   }
 
   async removeMember(membershipId: string): Promise<void> {
-    const existing = this.memberships.get(membershipId);
+    const existing = await this.adapter.get(membershipId);
     if (existing) {
-      this.memberships.delete(membershipId);
+      await this.adapter.delete(membershipId);
       events.emit('member.left', { membershipId, spaceId: existing.spaceId, userId: existing.userId });
     }
   }
 
   async updateStatus(membershipId: string, status: MembershipStatus): Promise<Membership> {
-    const existing = this.memberships.get(membershipId);
-    if (!existing) throw new Error('Membership not found');
-    
-    const updated = { ...existing, status };
-    this.memberships.set(membershipId, updated);
+    const updated = await this.adapter.update(membershipId, { status });
     events.emit('member.status_updated', updated);
     return updated;
   }
 
   async updateRole(membershipId: string, role: SpaceRole): Promise<Membership> {
-    const existing = this.memberships.get(membershipId);
-    if (!existing) throw new Error('Membership not found');
-    
-    const updated = { ...existing, role };
-    this.memberships.set(membershipId, updated);
+    const updated = await this.adapter.update(membershipId, { role });
     events.emit('role.updated', updated);
     return updated;
   }
 
   async getMembers(spaceId: string): Promise<Membership[]> {
-    return Array.from(this.memberships.values()).filter(m => m.spaceId === spaceId);
+    return this.adapter.listBySpace(spaceId);
   }
 
   async getMembership(spaceId: string, userId: string): Promise<Membership | undefined> {
-    return Array.from(this.memberships.values()).find(m => m.spaceId === spaceId && m.userId === userId);
+    return this.adapter.getByUserAndSpace(userId, spaceId);
   }
 }
