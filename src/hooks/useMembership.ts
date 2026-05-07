@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Membership } from '../types';
-import { MembershipManager } from '../manager/MembershipManager';
+import { MembershipManager } from '../core/MembershipManager';
 
 export function useMembership(spaceId: string, userId: string, membershipManager: MembershipManager) {
   const [membership, setMembership] = useState<Membership | null>(null);
