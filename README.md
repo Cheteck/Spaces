@@ -6,14 +6,14 @@
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org/)
 
-Spaces est un package officiel IJIDeals qui permet de créer et gérer des **espaces communautaires hybrides (digital + réel)** à fort impact positif. Il transforme IAMCore en une infrastructure complète pour des communautés qui agissent concrètement (social, environnemental, éducatif, etc.).
+Spaces est un package officiel IJIDeals qui permet de créer et gérer des **espaces communautaires hybrides (digital + réel)** à fort impact positif. Il transforme IAMCore en une infrastructure complète pour des communautés structurées, sécurisées et orientées action.
 
 ---
 
 ## ✨ Vision
 *"De la discussion à l’action positive."*
 
-Spaces ne se contente pas de la discussion. Chaque espace doit définir sa **mission** et ses **valeurs** pour favoriser un impact réel dans le monde.
+Spaces fournit un conteneur communautaire complet incluant membres, contenu, marketplace, événements et gouvernance.
 
 ---
 
@@ -27,107 +27,63 @@ npm install @ijideals/spaces @ijideals/iam-core
 
 ## Fonctionnalités Clés
 
-### Core & Impact
-- **CRUD complet des Spaces** avec Slugs automatiques.
-- **Mission & Valeurs obligatoires** pour chaque communauté.
-- **Impact Tracking** : Mesure et reporting d'impact réel (`ImpactManager`).
-- **Système de Vérification** : Niveaux `none`, `basic`, `verified`, `official`, `institutional`.
+### Core & Modules
+- **CRUD complet des Spaces** avec Slugs automatiques et **Mission/Valeurs obligatoires**.
+- **Module System** : Activez/Désactivez dynamiquement des modules (`posts`, `chat`, `products`, `events`, `jobs`, `analytics`, etc.).
+- **Ownership Transfer** : Processus sécurisé de transfert de propriété avec période de lock.
 
-### Membership & Rôles à Impact
-- Rôles : `guardian`, `facilitator`, `impact_creator`, `contributor`, `supporter`.
-- Gestion des invitations et de la modération (Reports, Bans).
+### Impact & Gouvernance
+- **Impact Tracking** : Mesure et reporting d'impact social, environnemental et éducatif.
+- **Gouvernance & Charte** : Prise de décision collective via des votes et une charte communautaire versionnée.
+- **Vérification** : Badges de confiance (Bleu/Doré) et niveaux institutionnels.
 
-### Intégration Écosystème
-- **IAMCore** : Plugin `spaceAdminPlugin` pour des permissions granulaires et explicables.
-- **ProductsEngine** : Marketplace interne pour l'économie circulaire et locale.
-- **Next.js 16+** : Proxy sécurisé pour enrichir le contexte d'exécution.
+### Membership & Rôles
+- Rôles granulaires : `OWNER`, `ADMIN`, `EDITOR`, `MODERATOR`, `SUBSCRIBER`, `GUARDIAN`, `FACILITATOR`.
 
 ---
 
 ## Utilisation Rapide
 
-### Créer un Compte Officiel à Impact
+### Créer un Space à Impact
 ```typescript
 import { SpaceManager } from '@ijideals/spaces';
 
 const spaces = new SpaceManager();
 
-const officialSpace = await spaces.create({
-  name: "Présidence de la République",
-  type: "official",
-  mission: "Servir le peuple avec transparence et impact.",
-  values: ["Transparence", "Service Public", "Innovation"],
+const space = await spaces.create({
+  name: "Tech for Good",
+  type: "impact",
+  mission: "Accélérer l'innovation sociale par la technologie.",
+  values: ["Impact", "Inclusion", "Partage"],
   visibility: "PUBLIC",
-  verificationLevel: "official",
-  ownerId: "gov_admin_1"
+  ownerId: "user_1"
 });
 
-console.log('Space Slug:', officialSpace.slug); // /presidence-de-la-republique
+// Activer le module de jobs
+await spaces.toggleModule(space.id, 'jobs', true);
 ```
 
-### Suivre l'Impact
+### Transférer l'Ownership
 ```typescript
-import { ImpactManager } from '@ijideals/spaces';
+import { OwnershipManager } from '@ijideals/spaces';
 
-const impact = new ImpactManager();
-await impact.reportImpact({
-  spaceId: officialSpace.id,
-  type: 'educational',
-  description: 'Distribution de 1000 kits scolaires',
-  metrics: { kits: 1000, students_reached: 950 }
-});
+const ownership = new OwnershipManager();
+const transfer = await ownership.requestTransfer(space.id, "current_owner_id", "new_owner_id");
+
+// 7 jours plus tard (ou après acceptation)
+await ownership.acceptTransfer(transfer.id, "new_owner_id");
 ```
 
 ---
 
 ## Architecture
 
-Spaces utilise une architecture propre et modulaire :
-- `src/core` : Logique métier (Managers).
-- `src/adapters` : Support multi-base de données (Prisma, Drizzle, etc.).
-- `src/hooks` : Intégration React fluide.
-- `src/integrations` : Liaisons natives (ProductsEngine).
+Spaces est conçu pour être extensible et multi-tenant :
+- `src/core` : Cœur métier (Managers).
+- `src/adapters` : Support DB via architecture d'adapteurs.
+- `src/integrations` : Intégrations natives (IAMCore, ProductsEngine).
+- `src/templates` : Modèles prédéfinis (NGO, School, Community).
 
 ---
 
 **Made with ❤️ by IJIDeals**
-
-### Gouvernance & Votes
-Spaces inclut un module de gouvernance pour faciliter la prise de décision collective.
-```typescript
-const governance = new GovernanceManager();
-const proposal = await governance.createProposal({
-  spaceId: 's1',
-  creatorId: 'u1',
-  title: 'Nouvelle charte',
-  description: 'Votons pour la nouvelle charte communautaire.',
-  options: ['Oui', 'Non'],
-  expiresAt: new Date(Date.now() + 86400000)
-});
-
-await governance.vote(proposal.id, 'u2', 'Oui');
-```
-
-### Partage de Ressources
-Partagez des outils, des locaux ou des compétences au sein de vos espaces.
-```typescript
-const resources = new ResourceManager();
-const tool = await resources.addResource({
-  spaceId: 's1',
-  ownerId: 'u1',
-  name: 'Perceuse Bosch',
-  type: 'tool'
-});
-
-await resources.bookResource(tool.id, 'u3', new Date(), new Date());
-```
-
-### Gouvernance & Charte
-Spaces permet de gérer une charte communautaire versionnée pour garantir la transparence et l'alignement des valeurs.
-```typescript
-const charters = new CharterManager();
-await charters.initCharter(space.id, "Notre mission", ["Valeur 1"], "Texte complet de la charte", user.id);
-
-// Mise à jour vers la version 2
-await charters.updateCharter(space.id, "Mission mise à jour", ["Valeur 1", "Valeur 2"], "Nouveau texte", user.id);
-```
