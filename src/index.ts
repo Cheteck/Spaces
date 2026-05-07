@@ -10,6 +10,7 @@ export * from './core/TemplateManager';
 export * from './core/ImpactManager';
 export * from './core/GovernanceManager';
 export * from './core/ResourceManager';
+export * from './core/CharterManager';
 export * from './hooks/useSpace';
 export * from './hooks/useMembership';
 export * from './hooks/useCanInSpace';
