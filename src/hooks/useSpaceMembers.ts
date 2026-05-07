@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Membership } from '../types';
-import { MembershipManager } from '../core/MembershipManager';
+import { useSpaces } from './SpacesProvider';
 
-export function useSpaceMembers(spaceId: string, membershipManager: MembershipManager) {
+export function useSpaceMembers(spaceId: string) {
+  const { membershipManager } = useSpaces();
   const [members, setMembers] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
 
