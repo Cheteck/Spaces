@@ -11,6 +11,7 @@ export * from './core/ImpactManager';
 export * from './core/GovernanceManager';
 export * from './core/ResourceManager';
 export * from './core/CharterManager';
+export * from './core/OwnershipManager';
 export * from './hooks/useSpace';
 export * from './hooks/useMembership';
 export * from './hooks/useCanInSpace';
