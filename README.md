@@ -8,12 +8,14 @@
 
 Spaces est un package officiel IJIDeals qui permet de créer et gérer des **espaces communautaires hybrides (digital + réel)** à fort impact positif. Il transforme IAMCore en une infrastructure complète pour des communautés structurées, sécurisées et orientées action.
 
+> **Note sur le Social** : Les fonctionnalités de feed, posts et commentaires sont gérées par le package `@ijideals/social`. `@ijideals/spaces` fournit le conteneur, les permissions et la configuration des modules.
+
 ---
 
 ## ✨ Vision
 *"De la discussion à l’action positive."*
 
-Spaces fournit un conteneur communautaire complet incluant membres, contenu, marketplace, événements et gouvernance.
+Spaces fournit un conteneur communautaire complet incluant membres, rôles, modules (marketplace, événements, ressources) et gouvernance.
 
 ---
 
@@ -28,23 +30,25 @@ npm install @ijideals/spaces @ijideals/iam-core
 ## Fonctionnalités Clés
 
 ### Core & Modules
-- **CRUD complet des Spaces** avec Slugs automatiques et **Mission/Valeurs obligatoires**.
-- **Module System** : Activez/Désactivez dynamiquement des modules (`posts`, `chat`, `products`, `events`, `jobs`, `analytics`, etc.).
-- **Ownership Transfer** : Processus sécurisé de transfert de propriété avec période de lock.
+- **CRUD complet des Spaces** avec Slugs uniques automatiques et **Validation Zod**.
+- **Module System** : Activez/Désactivez dynamiquement des modules (`chat`, `products`, `events`, `jobs`, `analytics`, etc.) basés sur des Tiers (Free, Pro, Ultimate).
+- **Ownership Transfer** : Processus sécurisé avec lock de 7 jours (demande) et 30 jours (après succès).
+- **Soft Delete** : Archivage sécurisé des communautés.
 
 ### Impact & Gouvernance
 - **Impact Tracking** : Mesure et reporting d'impact social, environnemental et éducatif.
-- **Gouvernance & Charte** : Prise de décision collective via des votes et une charte communautaire versionnée.
+- **Gouvernance & Charte** : Prise de décision collective et charte communautaire versionnée.
 - **Vérification** : Badges de confiance (Bleu/Doré) et niveaux institutionnels.
 
 ### Membership & Rôles
-- Rôles granulaires : `OWNER`, `ADMIN`, `EDITOR`, `MODERATOR`, `SUBSCRIBER`, `GUARDIAN`, `FACILITATOR`.
+- Rôles enrichis : `OWNER`, `ADMIN`, `EDITOR`, `MODERATOR`, `SUBSCRIBER`, `GUARDIAN`, `FACILITATOR`.
+- Permissions Matrix intégrée (`PermissionManager`).
 
 ---
 
 ## Utilisation Rapide
 
-### Créer un Space à Impact
+### Créer un Space (Validation Zod incluse)
 ```typescript
 import { SpaceManager } from '@ijideals/spaces';
 
@@ -54,60 +58,32 @@ const space = await spaces.create({
   name: "Tech for Good",
   type: "impact",
   mission: "Accélérer l'innovation sociale par la technologie.",
-  values: ["Impact", "Inclusion", "Partage"],
+  values: ["Impact", "Inclusion"],
   visibility: "PUBLIC",
   ownerId: "user_1"
 });
-
-// Activer le module de jobs
-await spaces.toggleModule(space.id, 'jobs', true);
 ```
 
-### Transférer l'Ownership
+### Gérer les Modules
 ```typescript
-import { OwnershipManager } from '@ijideals/spaces';
+import { ModuleManager } from '@ijideals/spaces';
 
-const ownership = new OwnershipManager();
-const transfer = await ownership.requestTransfer(space.id, "current_owner_id", "new_owner_id");
-
-// 7 jours plus tard (ou après acceptation)
-await ownership.acceptTransfer(transfer.id, "new_owner_id");
+const moduleManager = new ModuleManager(adapter);
+const access = await moduleManager.getModuleAccess(space.id, 'chat');
+if (access.enabled) {
+  // ...
+}
 ```
 
 ---
 
 ## Architecture
 
-Spaces est conçu pour être extensible et multi-tenant :
-- `src/core` : Cœur métier (Managers).
-- `src/adapters` : Support DB via architecture d'adapteurs.
-- `src/integrations` : Intégrations natives (IAMCore, ProductsEngine).
-- `src/templates` : Modèles prédéfinis (NGO, School, Community).
+- `src/core` : Managers (Permission, Module, Space, etc.).
+- `src/adapters` : Support DB multi-cloud.
+- `src/validation` : Schemas Zod.
+- `src/hooks` : Intégration React.
 
 ---
 
 **Made with ❤️ by IJIDeals**
-
-## 🧪 Tests
-
-Spaces est rigoureusement testé pour garantir la sécurité et la fiabilité.
-
-### Tests Unitaires
-Nous testons chaque manager individuellement (Governance, Ownership, ResourceManager, etc.).
-```bash
-npm test
-```
-
-### Tests E2E (Lifecycle)
-Un cycle de vie complet est simulé : de la création du Space par un fondateur, à l'adhésion de membres, au vote d'une proposition, au reporting d'impact, jusqu'au transfert sécurisé de propriété.
-Voir `tests/e2e/lifecycle.test.ts`.
-
-### Logging
-Spaces inclut un système de logging structuré. Par défaut, il utilise la console, mais vous pouvez injecter votre propre logger.
-```typescript
-import { SpaceManager, DefaultLogger } from '@ijideals/spaces';
-
-// Customiser le niveau de log
-const myLogger = new DefaultLogger('[MyPrefix]', 'DEBUG');
-const spaces = new SpaceManager(undefined, myLogger);
-```
