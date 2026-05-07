@@ -7,7 +7,7 @@ describe('Adapters', () => {
   it('should use custom adapter', async () => {
     const adapter = new MemorySpaceAdapter();
     const sm = new SpaceManager(adapter);
-    await sm.createSpace({ name: 'A', type: 'impact', mission: 'M', values: ['V'], visibility: 'PUBLIC', ownerId: 'u1' });
+    await sm.createSpace({ name: 'Adapter Space', type: 'impact', mission: 'Mission text', values: ['V'], visibility: 'PUBLIC', ownerId: 'u1' });
     const list = await adapter.list();
     expect(list.length).toBe(1);
   });
