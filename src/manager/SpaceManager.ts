@@ -1,11 +1,12 @@
 import { Space, SpaceType, SpaceCapabilities, SpacePlugin } from '../types';
 import { events } from '../core/EventEmitter';
+import { ISpaceAdapter } from '../adapters';
+import { MemorySpaceAdapter } from '../adapters/MemoryAdapter';
 
 export class SpaceManager {
-  private spaces: Map<string, Space> = new Map();
   private plugins: SpacePlugin[] = [];
 
-  constructor() {}
+  constructor(private adapter: ISpaceAdapter = new MemorySpaceAdapter()) {}
 
   use(plugin: SpacePlugin) {
     this.plugins.push(plugin);
@@ -33,47 +34,38 @@ export class SpaceManager {
       updatedAt: now,
     };
 
-    this.spaces.set(id, space);
+    await this.adapter.create(space);
     events.emit('space.created', space);
     this.plugins.forEach(p => p.onSpaceCreated?.(space));
     return space;
   }
 
   async getSpace(id: string): Promise<Space | undefined> {
-    return this.spaces.get(id);
+    return this.adapter.get(id);
   }
 
   async listByOrganization(orgId: string): Promise<Space[]> {
-    return Array.from(this.spaces.values()).filter(s => s.organizationId === orgId);
+    const all = await this.adapter.list();
+    return all.filter(s => s.organizationId === orgId);
   }
 
   async listByWorkspace(wsId: string): Promise<Space[]> {
-    return Array.from(this.spaces.values()).filter(s => s.workspaceId === wsId);
+    const all = await this.adapter.list();
+    return all.filter(s => s.workspaceId === wsId);
   }
 
   async updateSpace(id: string, data: Partial<Space>): Promise<Space> {
-    const existing = await this.getSpace(id);
-    if (!existing) throw new Error('Space not found');
-    
-    const updated = {
-      ...existing,
-      ...data,
-      updatedAt: new Date(),
-    };
-    this.spaces.set(id, updated);
+    const updated = await this.adapter.update(id, data);
     events.emit('space.updated', updated);
     return updated;
   }
 
   async deleteSpace(id: string): Promise<void> {
-    const existing = await this.getSpace(id);
-    if (existing) {
-      this.spaces.delete(id);
-      events.emit('space.deleted', { id });
-    }
+    await this.adapter.delete(id);
+    events.emit('space.deleted', { id });
   }
 
   async listSpaces(): Promise<Space[]> {
-    return Array.from(this.spaces.values());
+    return this.adapter.list();
   }
 }
