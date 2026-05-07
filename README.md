@@ -1,151 +1,93 @@
 # @ijideals/spaces
 
-**Spaces** est un package officiel IJIDeals qui fournit une **couche métier complète et opinionated** pour gérer des entités **"Space"** (similaires aux Pages Facebook, Communities, Serveurs Discord ou Groupes collaboratifs).
+**Des communautés qui agissent pour le monde réel.**
 
-Il s’appuie nativement et profondément sur **IAMCore** pour la gestion des autorisations et s’intègre avec **ProductsEngine** pour la gestion des produits/marketplace au sein des Spaces.
+[![Version](https://img.shields.io/npm/v/@ijideals/spaces)](https://www.npmjs.com/package/@ijideals/spaces)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org/)
 
-## Slogan
-*"Spaces = Structure métier + Permissions puissantes (IAMCore) + Marketplace (ProductsEngine)"*
+Spaces est un package officiel IJIDeals qui permet de créer et gérer des **espaces communautaires hybrides (digital + réel)** à fort impact positif. Il transforme IAMCore en une infrastructure complète pour des communautés qui agissent concrètement (social, environnemental, éducatif, etc.).
 
-## Installation
+---
+
+## ✨ Vision
+*"De la discussion à l’action positive."*
+
+Spaces ne se contente pas de la discussion. Chaque espace doit définir sa **mission** et ses **valeurs** pour favoriser un impact réel dans le monde.
+
+---
+
+## 🚀 Installation
 
 ```bash
 npm install @ijideals/spaces @ijideals/iam-core
 ```
 
+---
+
 ## Fonctionnalités Clés
 
-- **Space Management** : CRUD complet pour les espaces.
-- **Membership & Role Management** : Gestion des membres avec rôles prédéfinis (ADMIN, MODERATOR, CREATOR, MEMBER, VISITOR).
-- **Plugin IAMCore dédié** : `spaceAdminPlugin` pour enrichir le contexte d'autorisation.
-- **Intégration ProductsEngine** : `productsPlugin` pour lier la marketplace aux espaces.
-- **React Hooks** : `useSpace`, `useMembership` pour une intégration frontend simplifiée.
-- **Guards/Middlewares** : `spaceGuard` pour protéger vos routes et actions.
+### Core & Impact
+- **CRUD complet des Spaces** avec Slugs automatiques.
+- **Mission & Valeurs obligatoires** pour chaque communauté.
+- **Impact Tracking** : Mesure et reporting d'impact réel (`ImpactManager`).
+- **Système de Vérification** : Niveaux `none`, `basic`, `verified`, `official`, `institutional`.
+
+### Membership & Rôles à Impact
+- Rôles : `guardian`, `facilitator`, `impact_creator`, `contributor`, `supporter`.
+- Gestion des invitations et de la modération (Reports, Bans).
+
+### Intégration Écosystème
+- **IAMCore** : Plugin `spaceAdminPlugin` pour des permissions granulaires et explicables.
+- **ProductsEngine** : Marketplace interne pour l'économie circulaire et locale.
+- **Next.js 16+** : Proxy sécurisé pour enrichir le contexte d'exécution.
+
+---
 
 ## Utilisation Rapide
 
-### Initialisation & Managers
+### Créer un Compte Officiel à Impact
 ```typescript
-import { createIAM } from '@ijideals/iam-core';
-import { spaceAdminPlugin, productsPlugin, SpaceManager, MembershipManager } from '@ijideals/spaces';
+import { SpaceManager } from '@ijideals/spaces';
 
-const iam = await createIAM({
-  plugins: [spaceAdminPlugin, productsPlugin],
-  // ... resolvers
+const spaces = new SpaceManager();
+
+const officialSpace = await spaces.create({
+  name: "Présidence de la République",
+  type: "official",
+  mission: "Servir le peuple avec transparence et impact.",
+  values: ["Transparence", "Service Public", "Innovation"],
+  visibility: "PUBLIC",
+  verificationLevel: "official",
+  ownerId: "gov_admin_1"
 });
 
-const spaceManager = new SpaceManager();
-const membershipManager = new MembershipManager();
+console.log('Space Slug:', officialSpace.slug); // /presidence-de-la-republique
 ```
 
-### React Hooks
+### Suivre l'Impact
 ```typescript
-import { useSpace, useMembership } from '@ijideals/spaces';
+import { ImpactManager } from '@ijideals/spaces';
 
-function SpaceHeader({ spaceId, userId }) {
-  const { space, loading } = useSpace(spaceId, spaceManager);
-  const { membership } = useMembership(spaceId, userId, membershipManager);
-
-  if (loading) return <div>Chargement...</div>;
-  return (
-    <div>
-      <h1>{space.name}</h1>
-      <p>Votre rôle : {membership?.role || 'Visiteur'}</p>
-    </div>
-  );
-}
-```
-
-### Guards
-```typescript
-import { spaceGuard } from '@ijideals/spaces';
-
-const decision = await spaceGuard(iam, ctx, 'space_123', {
-  requiredPermission: 'post.delete'
+const impact = new ImpactManager();
+await impact.reportImpact({
+  spaceId: officialSpace.id,
+  type: 'educational',
+  description: 'Distribution de 1000 kits scolaires',
+  metrics: { kits: 1000, students_reached: 950 }
 });
-
-if (!decision.allowed) {
-  throw new Error('Interdit !');
-}
 ```
+
+---
 
 ## Architecture
 
-- `src/types` : Définitions des entités Space et Membership.
-- `src/plugins` : Plugins pour IAMCore.
-- `src/manager` : Logique métier CRUD.
-- `src/hooks` : Hooks React pour le frontend.
-- `src/guards` : Utilitaires de protection d'accès.
+Spaces utilise une architecture propre et modulaire :
+- `src/core` : Logique métier (Managers).
+- `src/adapters` : Support multi-base de données (Prisma, Drizzle, etc.).
+- `src/hooks` : Intégration React fluide.
+- `src/integrations` : Liaisons natives (ProductsEngine).
 
-## Licence
-MIT - Réalisé par IJIDeals.
+---
 
-### Next.js Proxy (Next.js 16+)
-```typescript
-import { createSpaceProxy } from '@ijideals/spaces';
-
-// Crée un proxy IAM qui injecte automatiquement le spaceId
-const spaceIam = createSpaceProxy(iam, 'space_123');
-const allowed = await spaceIam.can(ctx, 'post.create');
-```
-
-### Advanced Logic
-- **Space Types**: Community, Marketplace, Organization, Team, Creator, Brand.
-- **Visibility**: Public, Private, Restricted, Hidden.
-- **Membership Status**: Pending, Active, Banned, Left.
-- **Capabilities**: Activer/Désactiver le chat, la marketplace, etc. par Space.
-
-### Plugin System
-```typescript
-const spaceManager = new SpaceManager();
-
-spaceManager.use({
-  name: 'my-plugin',
-  onSpaceCreated: (space) => console.log('Space created:', space.name)
-});
-```
-
-### Invitation System
-```typescript
-const invitationManager = new InvitationManager();
-const invite = await invitationManager.createInvitation(space.id, user.id, 'MEMBER');
-console.log('Invite Token:', invite.token);
-```
-
-### Moderation System
-```typescript
-const moderation = new ModerationManager();
-await moderation.report({
-  spaceId: 's1',
-  reportedBy: 'u1',
-  targetId: 'post_123',
-  targetType: 'post',
-  reason: 'Spam'
-});
-
-await moderation.banUser({
-  spaceId: 's1',
-  userId: 'u2',
-  reason: 'Repeated spam',
-  bannedBy: 'admin_1',
-  isShadowBan: false
-});
-```
-
-### Multi-tenant Readiness
-Spaces support `organizationId` and `workspaceId` for complex enterprise setups.
-```typescript
-const orgSpaces = await spaceManager.listByOrganization('org_abc');
-```
-
-### Multi-Cloud Ready (Adapters)
-Spaces can be used with any database by implementing `ISpaceAdapter` and `IMembershipAdapter`.
-```typescript
-import { SpaceManager, MemorySpaceAdapter } from '@ijideals/spaces';
-
-const spaceManager = new SpaceManager(new MyPrismaSpaceAdapter());
-```
-
-### Advanced Hooks
-- `useCanInSpace(iam, ctx, spaceId, 'post.delete')`: Vérifie une permission réactivement.
-- `useSpaceMembers(spaceId, membershipManager)`: Liste les membres d'un space.
+**Made with ❤️ by IJIDeals**
