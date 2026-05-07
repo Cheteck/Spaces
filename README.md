@@ -87,3 +87,29 @@ if (access.enabled) {
 ---
 
 **Made with ❤️ by IJIDeals**
+
+### React Provider Integration
+Pour utiliser les hooks dans votre application React, enveloppez votre racine avec `SpacesProvider`.
+```tsx
+import { SpacesProvider } from '@ijideals/spaces';
+
+function App() {
+  return (
+    <SpacesProvider iam={iamInstance} spaceAdapter={myPrismaAdapter}>
+      <MyCommunityApp />
+    </SpacesProvider>
+  );
+}
+```
+
+### Impact & ODD/SDG
+Spaces supporte le mapping des rapports d'impact vers les Objectifs de Développement Durable (ODD) de l'ONU.
+```typescript
+await impact.reportImpact({
+  spaceId: 's1',
+  type: 'social',
+  sdgs: ['SDG1_NO_POVERTY', 'SDG4_QUALITY_EDUCATION'],
+  description: 'Bourses scolaires pour 50 enfants',
+  metrics: { scholarships: 50 }
+});
+```
