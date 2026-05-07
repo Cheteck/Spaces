@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
 
-// Mock react BEFORE importing anything that might use it
 vi.mock('react', () => ({
   useState: (v: any) => [v, vi.fn()],
   useEffect: (f: any) => f(),
@@ -14,20 +13,22 @@ import {
   OwnershipManager,
   TemplateManager 
 } from '../../src';
+import { MemorySpaceAdapter } from '../../src/adapters/MemoryAdapter';
 
 describe('Spaces E2E Lifecycle', () => {
   it('should complete a full community lifecycle', async () => {
-    const sm = new SpaceManager();
+    const adapter = new MemorySpaceAdapter();
+    const sm = new SpaceManager(adapter);
     const mm = new MembershipManager();
     const gm = new GovernanceManager();
     const im = new ImpactManager();
-    const om = new OwnershipManager();
+    const om = new OwnershipManager(adapter);
     const tm = new TemplateManager();
 
     const space = await sm.createSpace({
       name: 'E2E Green Community',
       type: 'impact',
-      mission: 'Clean the oceans',
+      mission: 'Clean the oceans for real today',
       values: ['Ecology', 'Action'],
       visibility: 'PUBLIC',
       ownerId: 'founder_1',
@@ -58,7 +59,6 @@ describe('Spaces E2E Lifecycle', () => {
     const transfer = await om.requestTransfer(space.id, 'founder_1', 'volunteer_1');
     await om.acceptTransfer(transfer.id, 'volunteer_1');
     
-    await sm.updateSpace(space.id, { ownerId: 'volunteer_1' });
     const updatedSpace = await sm.getSpace(space.id);
     expect(updatedSpace?.ownerId).toBe('volunteer_1');
   });
