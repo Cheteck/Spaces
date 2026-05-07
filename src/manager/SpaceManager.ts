@@ -1,8 +1,18 @@
-import { Space, SpaceType, SpaceCapabilities } from '../types';
+import { Space, SpaceType, SpaceCapabilities, SpacePlugin } from '../types';
 import { events } from '../core/EventEmitter';
 
 export class SpaceManager {
   private spaces: Map<string, Space> = new Map();
+  private plugins: SpacePlugin[] = [];
+
+  constructor() {}
+
+  use(plugin: SpacePlugin) {
+    this.plugins.push(plugin);
+    if (plugin.onInit) {
+      plugin.onInit(this);
+    }
+  }
 
   private generateSlug(name: string): string {
     return name.toLowerCase()
@@ -24,7 +34,13 @@ export class SpaceManager {
     };
 
     this.spaces.set(id, space);
+    
+    // Emit internal events
     events.emit('space.created', space);
+    
+    // Trigger plugins
+    this.plugins.forEach(p => p.onSpaceCreated?.(space));
+    
     return space;
   }
 
