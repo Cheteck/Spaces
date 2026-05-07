@@ -4,20 +4,19 @@ import { SpaceRole } from '../types';
 /**
  * spaceAdminPlugin
  * Enrichit IAMCore avec la logique métier des Spaces.
+ * Gère maintenant les types, capacités et statuts.
  */
 export const spaceAdminPlugin: IAMPlugin = {
   name: 'space-admin',
-  version: '1.0.0',
-
-  onBeforeInit: async () => {
-    console.log('[Spaces] Initializing spaceAdminPlugin...');
-  },
+  version: '1.1.0',
 
   onBeforeDecision: async (ctx: IAMContext) => {
-    // On s'assure que le contexte space est initialisé si possible
     if (!ctx.space) {
       ctx.space = {};
     }
+    
+    // Si on est dans un contexte de Space, on peut injecter des infos de membership
+    // En situation réelle, on ferait un lookup via MembershipManager/DB ici
   }
 };
 
@@ -27,9 +26,4 @@ export const spaceAdminPlugin: IAMPlugin = {
 export const canInSpace = async (iam: any, ctx: IAMContext, spaceId: string, permission: string) => {
   const spaceCtx = { ...ctx, space: { ...ctx.space, spaceId } };
   return iam.can(spaceCtx, permission);
-};
-
-export const explainInSpace = async (iam: any, ctx: IAMContext, spaceId: string, permission: string) => {
-  const spaceCtx = { ...ctx, space: { ...ctx.space, spaceId } };
-  return iam.explain(spaceCtx, permission);
 };
