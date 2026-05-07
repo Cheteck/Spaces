@@ -10,3 +10,4 @@ export * from './templates';
 export * from './core/EventEmitter';
 export * from './validation';
 export * from './next/proxy';
+export * from './manager/InvitationManager';
