@@ -87,3 +87,17 @@ Spaces est conçu pour être extensible et multi-tenant :
 ---
 
 **Made with ❤️ by IJIDeals**
+
+## 🧪 Tests
+
+Spaces est rigoureusement testé pour garantir la sécurité et la fiabilité.
+
+### Tests Unitaires
+Nous testons chaque manager individuellement (Governance, Ownership, ResourceManager, etc.).
+```bash
+npm test
+```
+
+### Tests E2E (Lifecycle)
+Un cycle de vie complet est simulé : de la création du Space par un fondateur, à l'adhésion de membres, au vote d'une proposition, au reporting d'impact, jusqu'au transfert sécurisé de propriété.
+Voir `tests/e2e/lifecycle.test.ts`.
