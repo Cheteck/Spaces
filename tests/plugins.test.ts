@@ -5,7 +5,7 @@ import { productsPlugin } from '../src/plugins/products';
 describe('Plugins', () => {
   it('spaceAdminPlugin should have correct metadata', () => {
     expect(spaceAdminPlugin.name).toBe('space-admin');
-    expect(spaceAdminPlugin.version).toBe('1.0.0');
+    expect(spaceAdminPlugin.version).toBe('1.1.0');
   });
 
   it('productsPlugin should have correct metadata', () => {
