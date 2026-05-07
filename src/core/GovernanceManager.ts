@@ -1,9 +1,12 @@
 import { Proposal, Vote } from '../types';
 import { events } from '../events/EventEmitter';
+import { ILogger, logger as defaultLogger } from './Logger';
 
 export class GovernanceManager {
   private proposals: Map<string, Proposal> = new Map();
   private votes: Map<string, Vote[]> = new Map();
+
+  constructor(private logger: ILogger = defaultLogger) {}
 
   async createProposal(data: Omit<Proposal, 'id' | 'status' | 'createdAt'>): Promise<Proposal> {
     const id = Math.random().toString(36).substring(2, 11);
@@ -15,6 +18,7 @@ export class GovernanceManager {
     };
     this.proposals.set(id, proposal);
     this.votes.set(id, []);
+    this.logger.info(`Proposal created: ${proposal.title} in space ${proposal.spaceId}`);
     events.emit('governance.proposal_created', proposal);
     return proposal;
   }
@@ -38,6 +42,7 @@ export class GovernanceManager {
 
     votes.push(vote);
     this.votes.set(proposalId, votes);
+    this.logger.info(`User ${userId} voted for '${option}' on proposal ${proposalId}`);
     events.emit('governance.voted', vote);
     return vote;
   }
