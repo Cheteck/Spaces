@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Space } from '../types';
-import { SpaceManager } from '../manager/SpaceManager';
+import { SpaceManager } from '../core/SpaceManager';
 
 export function useSpace(spaceId: string, spaceManager: SpaceManager) {
   const [space, setSpace] = useState<Space | null>(null);
