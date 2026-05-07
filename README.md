@@ -121,3 +121,13 @@ const tool = await resources.addResource({
 
 await resources.bookResource(tool.id, 'u3', new Date(), new Date());
 ```
+
+### Gouvernance & Charte
+Spaces permet de gérer une charte communautaire versionnée pour garantir la transparence et l'alignement des valeurs.
+```typescript
+const charters = new CharterManager();
+await charters.initCharter(space.id, "Notre mission", ["Valeur 1"], "Texte complet de la charte", user.id);
+
+// Mise à jour vers la version 2
+await charters.updateCharter(space.id, "Mission mise à jour", ["Valeur 1", "Valeur 2"], "Nouveau texte", user.id);
+```
