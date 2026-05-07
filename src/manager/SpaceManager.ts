@@ -1,18 +1,28 @@
-import { Space } from '../types';
+import { Space, SpaceType, SpaceCapabilities } from '../types';
 import { events } from '../core/EventEmitter';
 
 export class SpaceManager {
   private spaces: Map<string, Space> = new Map();
 
-  async createSpace(data: Omit<Space, 'id' | 'createdAt' | 'updatedAt'>): Promise<Space> {
+  private generateSlug(name: string): string {
+    return name.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  }
+
+  async createSpace(data: Omit<Space, 'id' | 'createdAt' | 'updatedAt' | 'slug' | 'capabilities'> & { slug?: string, capabilities?: SpaceCapabilities }): Promise<Space> {
     const id = Math.random().toString(36).substring(2, 11);
     const now = new Date();
+    
     const space: Space = {
       ...data,
       id,
+      slug: data.slug || this.generateSlug(data.name),
+      capabilities: data.capabilities || { chat: true, products: false },
       createdAt: now,
       updatedAt: now,
     };
+
     this.spaces.set(id, space);
     events.emit('space.created', space);
     return space;
