@@ -6,3 +6,7 @@ export * from './manager/MembershipManager';
 export * from './hooks/useSpace';
 export * from './hooks/useMembership';
 export * from './guards/spaceGuard';
+export * from './templates';
+export * from './core/EventEmitter';
+export * from './validation';
+export * from './next/proxy';
