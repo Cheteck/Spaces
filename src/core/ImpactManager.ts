@@ -1,4 +1,4 @@
-import { ImpactReport } from '../types';
+import { ImpactReport, SDG } from '../types';
 import { events } from '../events/EventEmitter';
 import { ILogger, logger as defaultLogger } from './Logger';
 
@@ -15,8 +15,19 @@ export class ImpactManager {
       reportedAt: new Date(),
     };
     this.reports.set(id, report);
-    this.logger.info(`New impact report for Space ${data.spaceId}: ${data.description}`);
+    
+    const sdgCount = data.sdgs?.length || 0;
+    this.logger.info(`New impact report for Space ${data.spaceId} with ${sdgCount} SDGs: ${data.description}`);
+    
     events.emit('impact.reported', report);
     return report;
+  }
+
+  async getSpaceImpact(spaceId: string): Promise<ImpactReport[]> {
+    return Array.from(this.reports.values()).filter(r => r.spaceId === spaceId);
+  }
+
+  async getImpactBySDG(sdg: SDG): Promise<ImpactReport[]> {
+    return Array.from(this.reports.values()).filter(r => r.sdgs?.includes(sdg));
   }
 }
