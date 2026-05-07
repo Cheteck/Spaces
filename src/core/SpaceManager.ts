@@ -3,6 +3,7 @@ import { events } from '../events/EventEmitter';
 import { ISpaceAdapter } from '../adapters';
 import { MemorySpaceAdapter } from '../adapters/MemoryAdapter';
 import { ILogger, logger as defaultLogger } from './Logger';
+import { createSpaceSchema } from '../validation/space';
 
 export class SpaceManager {
   private plugins: SpacePlugin[] = [];
@@ -20,41 +21,70 @@ export class SpaceManager {
     }
   }
 
-  private generateSlug(name: string): string {
-    return name.toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+  private async generateSlug(name: string): Promise<string> {
+    let baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    let slug = baseSlug;
+    let counter = 0;
+    
+    while (await this.adapter.slugExists(slug)) {
+      counter++;
+      slug = `${baseSlug}-${counter}`;
+    }
+    
+    return slug;
   }
 
-  async createSpace(data: Omit<Space, 'id' | 'createdAt' | 'updatedAt' | 'slug' | 'capabilities' | 'verificationLevel'> & { slug?: string, capabilities?: SpaceCapabilities, verificationLevel?: VerificationLevel }): Promise<Space> {
-    if (!data.mission) throw new Error('Mission is mandatory for all spaces');
-    if (!data.values || data.values.length === 0) throw new Error('At least one value is required');
+  async createSpace(data: any): Promise<Space> {
+    const validated = createSpaceSchema.parse(data);
 
     const id = Math.random().toString(36).substring(2, 11);
     const now = new Date();
     
     const space: Space = {
-      ...data,
+      ...validated,
       id,
-      slug: data.slug || this.generateSlug(data.name),
-      capabilities: data.capabilities || { 
+      slug: await this.generateSlug(validated.name),
+      capabilities: validated.capabilities || { 
         chat: true, 
         products: false, 
         impact_tracking: true,
         posts: true,
         comments: true 
       },
-      verificationLevel: data.verificationLevel || 'none',
+      verificationLevel: validated.verificationLevel || 'none',
       createdAt: now,
       updatedAt: now,
-    };
+      ownerId: data.ownerId
+    } as Space;
 
     await this.adapter.create(space);
+
+    if (data.templateId) {
+      const defaultModules = ['posts', 'comments', 'chat'];
+      for (const m of defaultModules) {
+        await this.adapter.createModule(space.id, m, true);
+      }
+      events.emit('space.modules_initialized', { spaceId: space.id, modules: defaultModules });
+    }
+
     this.logger.info(`Space created: ${space.name} (${space.slug})`, { id: space.id });
-    
     events.emit('space.created', space);
     this.plugins.forEach(p => p.onSpaceCreated?.(space));
+    
     return space;
+  }
+
+  async deleteSpace(id: string): Promise<void> {
+    const space = await this.getSpace(id);
+    if (!space) throw new Error('Space not found');
+    
+    await this.adapter.update(id, { 
+      deletedAt: new Date(),
+      updatedAt: new Date() 
+    });
+    
+    this.logger.warn(`Space soft-deleted: ${id}`);
+    events.emit('space.deleted', { id, softDelete: true });
   }
 
   async toggleModule(id: string, module: keyof SpaceCapabilities, enabled: boolean): Promise<Space> {
@@ -68,11 +98,14 @@ export class SpaceManager {
     return updated;
   }
 
-  async verifySpace(id: string, level: VerificationLevel): Promise<Space> {
-    const updated = await this.adapter.update(id, { verificationLevel: level });
-    this.logger.info(`Space verified at level ${level}: ${id}`);
-    events.emit('space.verified', updated);
-    return updated;
+  async listByOrganization(orgId: string): Promise<Space[]> {
+    const all = await this.adapter.list();
+    return all.filter(s => s.organizationId === orgId);
+  }
+
+  async listByWorkspace(wsId: string): Promise<Space[]> {
+    const all = await this.adapter.list();
+    return all.filter(s => s.workspaceId === wsId);
   }
 
   async getSpace(id: string): Promise<Space | undefined> {
@@ -81,18 +114,18 @@ export class SpaceManager {
 
   async updateSpace(id: string, data: Partial<Space>): Promise<Space> {
     const updated = await this.adapter.update(id, data);
-    this.logger.debug(`Space updated: ${id}`, data);
     events.emit('space.updated', updated);
     return updated;
   }
 
-  async deleteSpace(id: string): Promise<void> {
-    await this.adapter.delete(id);
-    this.logger.warn(`Space deleted: ${id}`);
-    events.emit('space.deleted', { id });
-  }
-
   async listSpaces(): Promise<Space[]> {
     return this.adapter.list();
+  }
+
+  async verifySpace(id: string, level: VerificationLevel): Promise<Space> {
+    const updated = await this.adapter.update(id, { verificationLevel: level });
+    this.logger.info(`Space verified at level ${level}: ${id}`);
+    events.emit('space.verified', updated);
+    return updated;
   }
 }
