@@ -1,6 +1,7 @@
 import { Invitation, SpaceRole } from '../types';
 import { events } from '../events/EventEmitter';
 import { ILogger, logger as defaultLogger } from './Logger';
+import * as crypto from 'crypto';
 
 export class InvitationManager {
   private invitations: Map<string, Invitation> = new Map();
@@ -9,7 +10,7 @@ export class InvitationManager {
 
   async createInvitation(spaceId: string, invitedBy: string, role: SpaceRole, email?: string): Promise<Invitation> {
     const id = Math.random().toString(36).substring(2, 11);
-    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const token = crypto.randomBytes(16).toString('hex');
     
     const invitation: Invitation = {
       id,
@@ -18,7 +19,7 @@ export class InvitationManager {
       role,
       invitedBy,
       token,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week
     };
 
     this.invitations.set(id, invitation);
@@ -31,6 +32,9 @@ export class InvitationManager {
     const invitation = Array.from(this.invitations.values()).find(i => i.token === token);
     
     if (!invitation) throw new Error('Invitation not found');
+    if (invitation.acceptedAt) throw new Error('Invitation already accepted');
+    if (invitation.expiresAt < new Date()) throw new Error('Invitation expired');
+
     invitation.acceptedAt = new Date();
     this.invitations.set(invitation.id, invitation);
     
