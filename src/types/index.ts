@@ -1,8 +1,25 @@
-export type SpaceRole = 'ADMIN' | 'MODERATOR' | 'CREATOR' | 'MEMBER' | 'VISITOR';
+export type SpaceRole = 
+  | 'guardian' 
+  | 'facilitator' 
+  | 'impact_creator' 
+  | 'contributor' 
+  | 'supporter'
+  | 'ADMIN' | 'MODERATOR' | 'MEMBER' | 'VISITOR'; // Backward compatibility
 
 export type SpaceVisibility = 'PUBLIC' | 'PRIVATE' | 'HIDDEN' | 'RESTRICTED';
 
-export type SpaceType = 'community' | 'marketplace' | 'organization' | 'team' | 'creator' | 'brand';
+export type SpaceType = 
+  | 'community' 
+  | 'impact' 
+  | 'learning' 
+  | 'creator' 
+  | 'marketplace' 
+  | 'organization' 
+  | 'official' 
+  | 'brand' 
+  | 'wellness';
+
+export type VerificationLevel = 'none' | 'basic' | 'verified' | 'official' | 'institutional';
 
 export type MembershipStatus = 'pending' | 'active' | 'banned' | 'left';
 
@@ -12,6 +29,8 @@ export interface SpaceCapabilities {
   products?: boolean;
   analytics?: boolean;
   livestream?: boolean;
+  impact_tracking?: boolean;
+  resource_sharing?: boolean;
 }
 
 export interface Space {
@@ -20,7 +39,10 @@ export interface Space {
   slug: string;
   type: SpaceType;
   description?: string;
+  mission: string;
+  values: string[];
   visibility: SpaceVisibility;
+  verificationLevel: VerificationLevel;
   capabilities: SpaceCapabilities;
   ownerId: string;
   organizationId?: string;
@@ -51,6 +73,15 @@ export interface Invitation {
   token: string;
 }
 
+export interface ImpactReport {
+  id: string;
+  spaceId: string;
+  type: 'social' | 'environmental' | 'educational' | 'economic';
+  description: string;
+  metrics: Record<string, number>;
+  reportedAt: Date;
+}
+
 export interface SpacePlugin {
   name: string;
   onInit?: (manager: any) => void;
@@ -62,7 +93,7 @@ export interface Report {
   id: string;
   spaceId: string;
   reportedBy: string;
-  targetId: string; // userId, postId, etc.
+  targetId: string;
   targetType: 'user' | 'post' | 'comment';
   reason: string;
   status: 'pending' | 'reviewed' | 'action_taken' | 'dismissed';
@@ -85,6 +116,7 @@ export interface SpaceContext {
   role?: SpaceRole;
   status?: MembershipStatus;
   type?: SpaceType;
+  verificationLevel?: VerificationLevel;
   capabilities?: SpaceCapabilities;
   visibility?: SpaceVisibility;
   isOwner?: boolean;
