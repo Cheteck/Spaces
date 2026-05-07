@@ -40,6 +40,24 @@ export interface Membership {
   metadata?: Record<string, any>;
 }
 
+export interface Invitation {
+  id: string;
+  spaceId: string;
+  email?: string;
+  role: SpaceRole;
+  invitedBy: string;
+  expiresAt: Date;
+  acceptedAt?: Date;
+  token: string;
+}
+
+export interface SpacePlugin {
+  name: string;
+  onInit?: (manager: any) => void;
+  onSpaceCreated?: (space: Space) => void;
+  onMemberJoined?: (membership: Membership) => void;
+}
+
 export interface SpaceContext {
   spaceId?: string;
   role?: SpaceRole;
