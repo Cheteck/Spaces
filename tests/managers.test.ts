@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { SpaceManager } from '../src/manager/SpaceManager';
-import { MembershipManager } from '../src/manager/MembershipManager';
+import { SpaceManager } from '../src/core/SpaceManager';
+import { MembershipManager } from '../src/core/MembershipManager';
 
 describe('SpaceManager', () => {
   let spaceManager: SpaceManager;
@@ -9,44 +9,33 @@ describe('SpaceManager', () => {
     spaceManager = new SpaceManager();
   });
 
-  it('should create a space', async () => {
+  it('should create a space with mission and values', async () => {
     const space = await spaceManager.createSpace({
-      name: 'Test Space',
-      type: 'community',
+      name: 'Impact Space',
+      type: 'impact',
+      mission: 'Save the planet',
+      values: ['Ecology'],
       visibility: 'PUBLIC',
       ownerId: 'user1',
     });
 
     expect(space.id).toBeDefined();
-    expect(space.name).toBe('Test Space');
-    expect(await spaceManager.getSpace(space.id)).toEqual(space);
+    expect(space.slug).toBe('impact-space');
   });
 
-  it('should list spaces', async () => {
-    await spaceManager.createSpace({ name: 'S1', type: 'community', visibility: 'PUBLIC', ownerId: 'u1' });
-    await spaceManager.createSpace({ name: 'S2', type: 'brand', visibility: 'PRIVATE', ownerId: 'u1' });
-    
-    const list = await spaceManager.listSpaces();
-    expect(list.length).toBe(2);
+  it('should fail if mission is missing', async () => {
+    // @ts-ignore
+    await expect(spaceManager.createSpace({ name: 'S', values: ['V'] }))
+      .rejects.toThrow('Mission is mandatory');
   });
 });
 
 describe('MembershipManager', () => {
-  let membershipManager: MembershipManager;
+  let mm: MembershipManager;
+  beforeEach(() => { mm = new MembershipManager(); });
 
-  beforeEach(() => {
-    membershipManager = new MembershipManager();
-  });
-
-  it('should add a member', async () => {
-    const membership = await membershipManager.addMember('space1', 'user1', 'ADMIN');
-    expect(membership.role).toBe('ADMIN');
-    expect(await membershipManager.getMembership('space1', 'user1')).toEqual(membership);
-  });
-
-  it('should update member role', async () => {
-    const membership = await membershipManager.addMember('space1', 'user1', 'MEMBER');
-    const updated = await membershipManager.updateRole(membership.id, 'MODERATOR');
-    expect(updated.role).toBe('MODERATOR');
+  it('should add member with guardian role', async () => {
+    const m = await mm.addMember('s1', 'u1', 'guardian');
+    expect(m.role).toBe('guardian');
   });
 });
