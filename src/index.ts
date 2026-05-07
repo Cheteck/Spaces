@@ -1,8 +1,11 @@
 export * from './types';
 export * from './plugins/spaceAdmin';
 export * from './plugins/products';
+export * from './plugins/social';
 export * from './manager/SpaceManager';
 export * from './manager/MembershipManager';
+export * from './manager/InvitationManager';
+export * from './manager/ModerationManager';
 export * from './hooks/useSpace';
 export * from './hooks/useMembership';
 export * from './guards/spaceGuard';
@@ -10,4 +13,3 @@ export * from './templates';
 export * from './core/EventEmitter';
 export * from './validation';
 export * from './next/proxy';
-export * from './manager/InvitationManager';
