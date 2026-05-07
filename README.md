@@ -111,3 +111,29 @@ const invitationManager = new InvitationManager();
 const invite = await invitationManager.createInvitation(space.id, user.id, 'MEMBER');
 console.log('Invite Token:', invite.token);
 ```
+
+### Moderation System
+```typescript
+const moderation = new ModerationManager();
+await moderation.report({
+  spaceId: 's1',
+  reportedBy: 'u1',
+  targetId: 'post_123',
+  targetType: 'post',
+  reason: 'Spam'
+});
+
+await moderation.banUser({
+  spaceId: 's1',
+  userId: 'u2',
+  reason: 'Repeated spam',
+  bannedBy: 'admin_1',
+  isShadowBan: false
+});
+```
+
+### Multi-tenant Readiness
+Spaces support `organizationId` and `workspaceId` for complex enterprise setups.
+```typescript
+const orgSpaces = await spaceManager.listByOrganization('org_abc');
+```
