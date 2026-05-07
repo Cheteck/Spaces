@@ -10,7 +10,7 @@ describe('Event System', () => {
     const spaceManager = new SpaceManager();
     const space = await spaceManager.createSpace({
       name: 'Event Space',
-      slug: 'event-space',
+      type: 'community',
       visibility: 'PUBLIC',
       ownerId: 'u1'
     });
