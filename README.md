@@ -94,3 +94,20 @@ const allowed = await spaceIam.can(ctx, 'post.create');
 - **Visibility**: Public, Private, Restricted, Hidden.
 - **Membership Status**: Pending, Active, Banned, Left.
 - **Capabilities**: Activer/Désactiver le chat, la marketplace, etc. par Space.
+
+### Plugin System
+```typescript
+const spaceManager = new SpaceManager();
+
+spaceManager.use({
+  name: 'my-plugin',
+  onSpaceCreated: (space) => console.log('Space created:', space.name)
+});
+```
+
+### Invitation System
+```typescript
+const invitationManager = new InvitationManager();
+const invite = await invitationManager.createInvitation(space.id, user.id, 'MEMBER');
+console.log('Invite Token:', invite.token);
+```
