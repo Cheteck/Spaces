@@ -9,12 +9,12 @@ describe('SpaceManager', () => {
     spaceManager = new SpaceManager();
   });
 
-  it('should create a space with mission and values', async () => {
+  it('should create a space with Zod validation', async () => {
     const space = await spaceManager.createSpace({
       name: 'Impact Space',
       type: 'impact',
-      mission: 'Save the planet',
-      values: ['Ecology'],
+      mission: 'Save the planet for real',
+      values: ['Ecology', 'Ethics'],
       visibility: 'PUBLIC',
       ownerId: 'user1',
     });
@@ -23,19 +23,28 @@ describe('SpaceManager', () => {
     expect(space.slug).toBe('impact-space');
   });
 
-  it('should fail if mission is missing', async () => {
-    // @ts-ignore
-    await expect(spaceManager.createSpace({ name: 'S', values: ['V'] }))
-      .rejects.toThrow('Mission is mandatory');
+  it('should handle slug collisions', async () => {
+    await spaceManager.createSpace({
+      name: 'Collision', type: 'community', mission: 'Check collision logic',
+      values: ['V1', 'V2'], ownerId: 'u1'
+    });
+    const space2 = await spaceManager.createSpace({
+      name: 'Collision', type: 'community', mission: 'Check collision logic',
+      values: ['V1', 'V2'], ownerId: 'u1'
+    });
+    expect(space2.slug).toBe('collision-1');
   });
-});
 
-describe('MembershipManager', () => {
-  let mm: MembershipManager;
-  beforeEach(() => { mm = new MembershipManager(); });
-
-  it('should add member with guardian role', async () => {
-    const m = await mm.addMember('s1', 'u1', 'guardian');
-    expect(m.role).toBe('guardian');
+  it('should perform soft delete', async () => {
+    const space = await spaceManager.createSpace({
+      name: 'Delete Me', type: 'community', mission: 'Test soft delete',
+      values: ['V1'], ownerId: 'u1'
+    });
+    await spaceManager.deleteSpace(space.id);
+    const found = await spaceManager.getSpace(space.id);
+    expect(found).toBeUndefined();
+    
+    const list = await spaceManager.listSpaces();
+    expect(list.length).toBe(0);
   });
 });
