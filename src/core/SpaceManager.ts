@@ -32,7 +32,13 @@ export class SpaceManager {
       ...data,
       id,
       slug: data.slug || this.generateSlug(data.name),
-      capabilities: data.capabilities || { chat: true, products: false, impact_tracking: true },
+      capabilities: data.capabilities || { 
+        chat: true, 
+        products: false, 
+        impact_tracking: true,
+        posts: true,
+        comments: true 
+      },
       verificationLevel: data.verificationLevel || 'none',
       createdAt: now,
       updatedAt: now,
@@ -42,6 +48,16 @@ export class SpaceManager {
     events.emit('space.created', space);
     this.plugins.forEach(p => p.onSpaceCreated?.(space));
     return space;
+  }
+
+  async toggleModule(id: string, module: keyof SpaceCapabilities, enabled: boolean): Promise<Space> {
+    const space = await this.getSpace(id);
+    if (!space) throw new Error('Space not found');
+
+    const updatedCapabilities = { ...space.capabilities, [module]: enabled };
+    const updated = await this.adapter.update(id, { capabilities: updatedCapabilities });
+    events.emit('space.module_toggled', { id, module, enabled });
+    return updated;
   }
 
   async verifySpace(id: string, level: VerificationLevel): Promise<Space> {
