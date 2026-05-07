@@ -1,4 +1,5 @@
-import { Space, SpaceVisibility } from '../types';
+import { Space } from '../types';
+import { events } from '../core/EventEmitter';
 
 export class SpaceManager {
   private spaces: Map<string, Space> = new Map();
@@ -13,6 +14,7 @@ export class SpaceManager {
       updatedAt: now,
     };
     this.spaces.set(id, space);
+    events.emit('space.created', space);
     return space;
   }
 
@@ -30,11 +32,16 @@ export class SpaceManager {
       updatedAt: new Date(),
     };
     this.spaces.set(id, updated);
+    events.emit('space.updated', updated);
     return updated;
   }
 
   async deleteSpace(id: string): Promise<void> {
-    this.spaces.delete(id);
+    const existing = await this.getSpace(id);
+    if (existing) {
+      this.spaces.delete(id);
+      events.emit('space.deleted', { id });
+    }
   }
 
   async listSpaces(): Promise<Space[]> {
