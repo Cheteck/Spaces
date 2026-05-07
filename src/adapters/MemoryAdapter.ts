@@ -3,8 +3,14 @@ import { Space, Membership } from '../types';
 
 export class MemorySpaceAdapter implements ISpaceAdapter {
   private spaces: Map<string, Space> = new Map();
+  private modules: Map<string, any[]> = new Map();
+
   async create(space: Space) { this.spaces.set(space.id, space); return space; }
-  async get(id: string) { return this.spaces.get(id); }
+  async get(id: string) { 
+    const space = this.spaces.get(id);
+    if (space && space.deletedAt) return undefined;
+    return space;
+  }
   async update(id: string, data: Partial<Space>) {
     const existing = this.spaces.get(id);
     if (!existing) throw new Error('Not found');
@@ -13,7 +19,17 @@ export class MemorySpaceAdapter implements ISpaceAdapter {
     return updated;
   }
   async delete(id: string) { this.spaces.delete(id); }
-  async list() { return Array.from(this.spaces.values()); }
+  async list() { 
+    return Array.from(this.spaces.values()).filter(s => !s.deletedAt); 
+  }
+  async slugExists(slug: string) {
+    return Array.from(this.spaces.values()).some(s => s.slug === slug && !s.deletedAt);
+  }
+  async createModule(spaceId: string, moduleType: string, enabled: boolean) {
+    const list = this.modules.get(spaceId) || [];
+    list.push({ type: moduleType, enabled });
+    this.modules.set(spaceId, list);
+  }
 }
 
 export class MemoryMembershipAdapter implements IMembershipAdapter {
