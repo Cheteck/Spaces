@@ -137,3 +137,15 @@ Spaces support `organizationId` and `workspaceId` for complex enterprise setups.
 ```typescript
 const orgSpaces = await spaceManager.listByOrganization('org_abc');
 ```
+
+### Multi-Cloud Ready (Adapters)
+Spaces can be used with any database by implementing `ISpaceAdapter` and `IMembershipAdapter`.
+```typescript
+import { SpaceManager, MemorySpaceAdapter } from '@ijideals/spaces';
+
+const spaceManager = new SpaceManager(new MyPrismaSpaceAdapter());
+```
+
+### Advanced Hooks
+- `useCanInSpace(iam, ctx, spaceId, 'post.delete')`: Vérifie une permission réactivement.
+- `useSpaceMembers(spaceId, membershipManager)`: Liste les membres d'un space.
