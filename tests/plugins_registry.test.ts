@@ -6,7 +6,7 @@ describe('Plugin Registry', () => {
     const sm = new SpaceManager();
     const plugin = { name: 'p', onSpaceCreated: vi.fn() };
     sm.use(plugin);
-    await sm.createSpace({ name: 'S', type: 'impact', mission: 'M', values: ['V'], visibility: 'PUBLIC', ownerId: 'u1' });
+    await sm.createSpace({ name: 'Plugin Space', type: 'impact', mission: 'Mission text', values: ['V'], visibility: 'PUBLIC', ownerId: 'u1' });
     expect(plugin.onSpaceCreated).toHaveBeenCalled();
   });
 });
