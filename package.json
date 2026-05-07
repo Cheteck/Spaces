@@ -1,7 +1,7 @@
 {
   "name": "@ijideals/spaces",
   "version": "1.0.0",
-  "description": "Business layer for Spaces with IAMCore and ProductsEngine integration",
+  "description": "Des communautés qui agissent pour le monde réel - Hybrid community infrastructure with IAMCore integration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -18,7 +18,11 @@
     "iamcore",
     "authorization",
     "marketplace",
-    "react"
+    "impact",
+    "community",
+    "governance",
+    "social",
+    "nextjs"
   ],
   "author": "Grok (for Cheteck / IJIDeals)",
   "license": "MIT",
