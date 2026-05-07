@@ -1,10 +1,12 @@
 export type SpaceRole = 
-  | 'guardian' 
-  | 'facilitator' 
-  | 'impact_creator' 
-  | 'contributor' 
-  | 'supporter'
-  | 'ADMIN' | 'MODERATOR' | 'MEMBER' | 'VISITOR'; // Backward compatibility
+  | 'OWNER' 
+  | 'ADMIN' 
+  | 'EDITOR' 
+  | 'MODERATOR' 
+  | 'SUBSCRIBER' 
+  | 'GUARDIAN' 
+  | 'FACILITATOR'
+  | 'impact_creator' | 'contributor' | 'supporter' | 'MEMBER' | 'VISITOR'; // Compatibility
 
 export type SpaceVisibility = 'PUBLIC' | 'PRIVATE' | 'HIDDEN' | 'RESTRICTED';
 
@@ -31,6 +33,13 @@ export interface SpaceCapabilities {
   livestream?: boolean;
   impact_tracking?: boolean;
   resource_sharing?: boolean;
+  posts?: boolean;
+  comments?: boolean;
+  events?: boolean;
+  files?: boolean;
+  jobs?: boolean;
+  media?: boolean;
+  subscriptions?: boolean;
 }
 
 export interface Space {
@@ -73,6 +82,16 @@ export interface Invitation {
   token: string;
 }
 
+export interface OwnershipTransfer {
+  id: string;
+  spaceId: string;
+  currentOwnerId: string;
+  newOwnerId: string;
+  status: 'pending' | 'accepted' | 'cancelled' | 'locked';
+  expiresAt: Date;
+  createdAt: Date;
+}
+
 export interface ImpactReport {
   id: string;
   spaceId: string;
@@ -111,23 +130,6 @@ export interface Ban {
   isShadowBan: boolean;
 }
 
-export interface SpaceContext {
-  spaceId?: string;
-  role?: SpaceRole;
-  status?: MembershipStatus;
-  type?: SpaceType;
-  verificationLevel?: VerificationLevel;
-  capabilities?: SpaceCapabilities;
-  visibility?: SpaceVisibility;
-  isOwner?: boolean;
-}
-
-declare module '@ijideals/iam-core' {
-  interface IAMContext {
-    space?: SpaceContext;
-  }
-}
-
 export interface Proposal {
   id: string;
   spaceId: string;
@@ -148,6 +150,22 @@ export interface Vote {
   votedAt: Date;
 }
 
+export interface CharterVersion {
+  version: number;
+  content: string;
+  mission: string;
+  values: string[];
+  approvedAt: Date;
+  approvedBy: string;
+}
+
+export interface Charter {
+  id: string;
+  spaceId: string;
+  currentVersion: number;
+  versions: CharterVersion[];
+}
+
 export interface SharedResource {
   id: string;
   spaceId: string;
@@ -165,18 +183,19 @@ export interface Booking {
   endTime: Date;
 }
 
-export interface CharterVersion {
-  version: number;
-  content: string;
-  mission: string;
-  values: string[];
-  approvedAt: Date;
-  approvedBy: string;
+export interface SpaceContext {
+  spaceId?: string;
+  role?: SpaceRole;
+  status?: MembershipStatus;
+  type?: SpaceType;
+  verificationLevel?: VerificationLevel;
+  capabilities?: SpaceCapabilities;
+  visibility?: SpaceVisibility;
+  isOwner?: boolean;
 }
 
-export interface Charter {
-  id: string;
-  spaceId: string;
-  currentVersion: number;
-  versions: CharterVersion[];
+declare module '@ijideals/iam-core' {
+  interface IAMContext {
+    space?: SpaceContext;
+  }
 }
