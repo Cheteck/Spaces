@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Space } from '../types';
-import { SpaceManager } from '../core/SpaceManager';
+import { useSpaces } from './SpacesProvider';
 
-export function useSpace(spaceId: string, spaceManager: SpaceManager) {
+export function useSpace(spaceId: string) {
+  const { spaceManager } = useSpaces();
   const [space, setSpace] = useState<Space | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     let isMounted = true;
-    
     setLoading(true);
+    
     spaceManager.getSpace(spaceId)
       .then(data => {
         if (isMounted) {
