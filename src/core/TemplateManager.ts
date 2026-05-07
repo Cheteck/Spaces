@@ -1,11 +1,10 @@
-import { communityTemplate, marketplaceTemplate } from '../templates';
-import { ngoTemplate } from '../templates/ngo';
-import { schoolTemplate } from '../templates/school';
+import { communityTemplate, marketplaceTemplate, ngoTemplate, schoolTemplate } from '../templates';
 
 export interface SpaceTemplate {
   name: string;
   description: string;
   defaultRoles: Record<string, string[]>;
+  defaultModules?: string[];
 }
 
 export class TemplateManager {
@@ -28,5 +27,14 @@ export class TemplateManager {
 
   listTemplates(): SpaceTemplate[] {
     return Array.from(this.templates.values());
+  }
+
+  async seedDefaults(): Promise<{ templates: number; categories: number }> {
+    // In a real DB scenario, we would upsert templates and categories
+    // For in-memory, they are already registered in constructor
+    return {
+      templates: this.templates.size,
+      categories: 0 // Categories to be implemented in a dedicated CategoryManager or here
+    };
   }
 }
