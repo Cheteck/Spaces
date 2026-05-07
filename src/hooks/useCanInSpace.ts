@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
-import { IAMContext } from '@ijideals/iam-core';
+import { useSpaces } from './SpacesProvider';
 
-export function useCanInSpace(iam: any, ctx: IAMContext, spaceId: string, permission: string) {
+export function useCanInSpace(ctx: any, spaceId: string, permission: string) {
+  const { iam } = useSpaces();
   const [allowed, setAllowed] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!iam) {
+      setLoading(false);
+      return;
+    }
+
     let isMounted = true;
     setLoading(true);
 
