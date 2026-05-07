@@ -2,13 +2,18 @@ import { Space, SpaceType, SpaceCapabilities, SpacePlugin, VerificationLevel } f
 import { events } from '../events/EventEmitter';
 import { ISpaceAdapter } from '../adapters';
 import { MemorySpaceAdapter } from '../adapters/MemoryAdapter';
+import { ILogger, logger as defaultLogger } from './Logger';
 
 export class SpaceManager {
   private plugins: SpacePlugin[] = [];
 
-  constructor(private adapter: ISpaceAdapter = new MemorySpaceAdapter()) {}
+  constructor(
+    private adapter: ISpaceAdapter = new MemorySpaceAdapter(),
+    private logger: ILogger = defaultLogger
+  ) {}
 
   use(plugin: SpacePlugin) {
+    this.logger.debug(`Registering plugin: ${plugin.name}`);
     this.plugins.push(plugin);
     if (plugin.onInit) {
       plugin.onInit(this);
@@ -45,6 +50,8 @@ export class SpaceManager {
     };
 
     await this.adapter.create(space);
+    this.logger.info(`Space created: ${space.name} (${space.slug})`, { id: space.id });
+    
     events.emit('space.created', space);
     this.plugins.forEach(p => p.onSpaceCreated?.(space));
     return space;
@@ -56,12 +63,14 @@ export class SpaceManager {
 
     const updatedCapabilities = { ...space.capabilities, [module]: enabled };
     const updated = await this.adapter.update(id, { capabilities: updatedCapabilities });
+    this.logger.info(`Module ${module} ${enabled ? 'enabled' : 'disabled'} for space: ${id}`);
     events.emit('space.module_toggled', { id, module, enabled });
     return updated;
   }
 
   async verifySpace(id: string, level: VerificationLevel): Promise<Space> {
     const updated = await this.adapter.update(id, { verificationLevel: level });
+    this.logger.info(`Space verified at level ${level}: ${id}`);
     events.emit('space.verified', updated);
     return updated;
   }
@@ -70,19 +79,16 @@ export class SpaceManager {
     return this.adapter.get(id);
   }
 
-  async listByOrganization(orgId: string): Promise<Space[]> {
-    const all = await this.adapter.list();
-    return all.filter(s => s.organizationId === orgId);
-  }
-
   async updateSpace(id: string, data: Partial<Space>): Promise<Space> {
     const updated = await this.adapter.update(id, data);
+    this.logger.debug(`Space updated: ${id}`, data);
     events.emit('space.updated', updated);
     return updated;
   }
 
   async deleteSpace(id: string): Promise<void> {
     await this.adapter.delete(id);
+    this.logger.warn(`Space deleted: ${id}`);
     events.emit('space.deleted', { id });
   }
 
