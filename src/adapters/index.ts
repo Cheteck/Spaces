@@ -6,6 +6,8 @@ export interface ISpaceAdapter {
   update(id: string, data: Partial<Space>): Promise<Space>;
   delete(id: string): Promise<void>;
   list(): Promise<Space[]>;
+  slugExists(slug: string): Promise<boolean>;
+  createModule(spaceId: string, moduleType: string, enabled: boolean): Promise<void>;
 }
 
 export interface IMembershipAdapter {
