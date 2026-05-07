@@ -101,3 +101,13 @@ npm test
 ### Tests E2E (Lifecycle)
 Un cycle de vie complet est simulé : de la création du Space par un fondateur, à l'adhésion de membres, au vote d'une proposition, au reporting d'impact, jusqu'au transfert sécurisé de propriété.
 Voir `tests/e2e/lifecycle.test.ts`.
+
+### Logging
+Spaces inclut un système de logging structuré. Par défaut, il utilise la console, mais vous pouvez injecter votre propre logger.
+```typescript
+import { SpaceManager, DefaultLogger } from '@ijideals/spaces';
+
+// Customiser le niveau de log
+const myLogger = new DefaultLogger('[MyPrefix]', 'DEBUG');
+const spaces = new SpaceManager(undefined, myLogger);
+```
