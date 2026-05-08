@@ -1,4 +1,3 @@
-
 export type SpaceRole = 
   | 'OWNER' 
   | 'ADMIN' 
@@ -52,6 +51,10 @@ export interface SpaceCapabilities {
   jobs?: boolean;
   media?: boolean;
   subscriptions?: boolean;
+  governance?: boolean;
+  learning?: boolean;
+  wellness?: boolean;
+  official?: boolean;
   [key: string]: boolean | undefined;
 }
 
@@ -110,6 +113,15 @@ export interface OwnershipTransfer {
   createdAt: Date;
 }
 
+export interface SpacePlugin {
+  name: string;
+  featureFlag?: keyof SpaceCapabilities;
+  defaultEnabled?: boolean;
+  onInit?: (manager: any) => void;
+  onSpaceCreated?: (space: Space) => void;
+  onMemberJoined?: (membership: Membership) => void;
+}
+
 export interface SpacePermissions {
   canManageSpace: boolean;
   canManageMembers: boolean;
@@ -148,13 +160,6 @@ export interface UserSettings {
 }
 
 export type ProfileVisibility = 'PUBLIC' | 'PRIVATE' | 'FOLLOWERS_ONLY';
-
-export interface SpacePlugin {
-  name: string;
-  onInit?: (manager: any) => void;
-  onSpaceCreated?: (space: Space) => void;
-  onMemberJoined?: (membership: Membership) => void;
-}
 
 export interface SpaceContext {
   spaceId?: string;
