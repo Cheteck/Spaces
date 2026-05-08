@@ -1,4 +1,4 @@
-import { Space, SpaceType, SpaceCapabilities, SpacePlugin, VerificationLevel } from '../types';
+import { Space, SpaceType, SpaceCapabilities, SpacePlugin, VerificationLevel, ActorContext } from '../types';
 import { events } from '../events/EventEmitter';
 import { ISpaceAdapter } from '../adapters';
 import { MemorySpaceAdapter } from '../adapters/MemoryAdapter';
@@ -34,13 +34,26 @@ export class SpaceManager {
     return slug;
   }
 
+  /**
+   * Returns an ActorContext representing a space.
+   */
+  async getSpaceActor(spaceId: string): Promise<ActorContext> {
+    const space = await this.getSpace(spaceId);
+    if (!space) throw new Error('Space not found');
+    return {
+      id: space.id,
+      type: 'space',
+      name: space.name,
+      avatar: space.metadata?.avatar as string
+    };
+  }
+
   async createSpace(data: any): Promise<Space> {
     const validated = createSpaceSchema.parse(data);
 
     const id = Math.random().toString(36).substring(2, 11);
     const now = new Date();
     
-    // 1. Calculate base capabilities
     const capabilities: SpaceCapabilities = validated.capabilities || { 
       chat: true, 
       products: false, 
@@ -48,10 +61,8 @@ export class SpaceManager {
       comments: true 
     };
 
-    // 2. Synchronize with registered plugins
     this.plugins.forEach(p => {
       if (p.featureFlag) {
-        // Only set if not already explicitly defined in data
         if (capabilities[p.featureFlag] === undefined) {
           capabilities[p.featureFlag] = p.defaultEnabled !== undefined ? p.defaultEnabled : true;
         }
@@ -81,8 +92,6 @@ export class SpaceManager {
 
     this.logger.info(`Space created: ${space.name} (${space.slug})`, { id: space.id });
     events.emit('space.created', space);
-    
-    // 3. Notify plugins
     this.plugins.forEach(p => p.onSpaceCreated?.(space));
     
     return space;
