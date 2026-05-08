@@ -128,3 +128,18 @@ const fullProfile = await profileService.getFullProfile(space.id, {
 console.log(fullProfile.social.followersCount);
 console.log(fullProfile.impact.sdgsCovered);
 ```
+
+### Plugin Ecosystem & Feature Flags
+Spaces est hautement extensible. Vous pouvez enregistrer des plugins qui activent automatiquement des fonctionnalités et des feature flags associés.
+```typescript
+import { SpaceManager, governancePlugin, impactPlugin } from '@ijideals/spaces';
+
+const spaces = new SpaceManager();
+spaces.use(governancePlugin); // Active le flag 'governance' par défaut
+spaces.use(impactPlugin);     // Active le flag 'impact_tracking' par défaut
+
+const space = await spaces.create({ ... });
+console.log(space.capabilities.governance); // true
+```
+
+Plugins disponibles : `governancePlugin`, `impactPlugin`, `eventsPlugin`, `resourcesPlugin`, `learningPlugin`, `wellnessPlugin`, `officialPlugin`.
