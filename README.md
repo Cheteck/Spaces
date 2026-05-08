@@ -113,3 +113,18 @@ await impact.reportImpact({
   metrics: { scholarships: 50 }
 });
 ```
+
+### Space Profiles (Aggregation)
+Spaces centralise les données provenant de différents moteurs (Social, Commerce, Impact) pour exposer un profil complet.
+```typescript
+import { SpaceProfileService } from '@ijideals/spaces';
+
+const profileService = new SpaceProfileService(spaceManager, impactManager);
+const fullProfile = await profileService.getFullProfile(space.id, {
+  includeCommerce: true,
+  includeImpact: true
+});
+
+console.log(fullProfile.social.followersCount);
+console.log(fullProfile.impact.sdgsCovered);
+```
