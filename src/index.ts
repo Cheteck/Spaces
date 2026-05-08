@@ -15,6 +15,7 @@ export * from './core/OwnershipManager';
 export * from './core/PermissionManager';
 export * from './core/ModuleManager';
 export * from './core/UserPermissionManager';
+export * from './core/SpaceProfileService';
 export * from './core/Logger';
 export * from './hooks/useSpace';
 export * from './hooks/useMembership';
