@@ -2,9 +2,28 @@ export type SpaceEventType =
   | 'space.created' 
   | 'space.updated' 
   | 'space.deleted'
+  | 'space.verified'
+  | 'space.module_toggled'
+  | 'space.modules_initialized'
+  | 'space.module_status_updated'
   | 'member.joined'
   | 'member.left'
-  | 'role.updated';
+  | 'member.status_updated'
+  | 'role.updated'
+  | 'invitation.created'
+  | 'invitation.accepted'
+  | 'moderation.reported'
+  | 'moderation.user_banned'
+  | 'impact.reported'
+  | 'governance.proposal_created'
+  | 'governance.voted'
+  | 'resource.added'
+  | 'resource.booked'
+  | 'charter.initialized'
+  | 'charter.updated'
+  | 'ownership.transfer_requested'
+  | 'ownership.transfer_accepted'
+  | 'ownership.transfer_cancelled';
 
 export type EventCallback = (data: any) => void;
 
