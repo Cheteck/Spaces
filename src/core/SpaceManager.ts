@@ -40,17 +40,29 @@ export class SpaceManager {
     const id = Math.random().toString(36).substring(2, 11);
     const now = new Date();
     
+    // 1. Calculate base capabilities
+    const capabilities: SpaceCapabilities = validated.capabilities || { 
+      chat: true, 
+      products: false, 
+      posts: true,
+      comments: true 
+    };
+
+    // 2. Synchronize with registered plugins
+    this.plugins.forEach(p => {
+      if (p.featureFlag) {
+        // Only set if not already explicitly defined in data
+        if (capabilities[p.featureFlag] === undefined) {
+          capabilities[p.featureFlag] = p.defaultEnabled !== undefined ? p.defaultEnabled : true;
+        }
+      }
+    });
+    
     const space: Space = {
       ...validated,
       id,
       slug: await this.generateSlug(validated.name),
-      capabilities: validated.capabilities || { 
-        chat: true, 
-        products: false, 
-        impact_tracking: true,
-        posts: true,
-        comments: true 
-      },
+      capabilities,
       verificationLevel: validated.verificationLevel || 'none',
       createdAt: now,
       updatedAt: now,
@@ -69,6 +81,8 @@ export class SpaceManager {
 
     this.logger.info(`Space created: ${space.name} (${space.slug})`, { id: space.id });
     events.emit('space.created', space);
+    
+    // 3. Notify plugins
     this.plugins.forEach(p => p.onSpaceCreated?.(space));
     
     return space;
@@ -101,11 +115,6 @@ export class SpaceManager {
   async listByOrganization(orgId: string): Promise<Space[]> {
     const all = await this.adapter.list();
     return all.filter(s => s.organizationId === orgId);
-  }
-
-  async listByWorkspace(wsId: string): Promise<Space[]> {
-    const all = await this.adapter.list();
-    return all.filter(s => s.workspaceId === wsId);
   }
 
   async getSpace(id: string): Promise<Space | undefined> {
