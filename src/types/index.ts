@@ -25,6 +25,15 @@ export type VerificationLevel = 'none' | 'basic' | 'verified' | 'official' | 'in
 
 export type MembershipStatus = 'pending' | 'active' | 'banned' | 'left';
 
+export type ActorType = 'user' | 'space';
+
+export interface ActorContext {
+  id: string;
+  type: ActorType;
+  name?: string;
+  avatar?: string;
+}
+
 export type SpaceModuleType = 
   | 'posts' | 'comments' | 'chat' | 'products' | 'events' | 'files' 
   | 'jobs' | 'analytics' | 'media' | 'subscriptions'
@@ -137,6 +146,7 @@ export interface SpacePermissions {
   canAccessChat: boolean;
   canAccessProducts: boolean;
   canAccessAnalytics: boolean;
+  canImpersonate: boolean;
 }
 
 export interface UserPermissions {
@@ -171,12 +181,14 @@ export interface SpaceContext {
   visibility?: SpaceVisibility;
   isOwner?: boolean;
   restrictedReason?: string;
+  actor?: ActorContext;
 }
 
 declare module '@ijideals/iam-core' {
   interface IAMContext {
     space?: SpaceContext;
     products?: any;
+    actor?: ActorContext;
   }
 }
 
