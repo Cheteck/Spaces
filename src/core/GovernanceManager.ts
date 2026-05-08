@@ -1,14 +1,25 @@
 import { Proposal, Vote } from '../types';
 import { events } from '../events/EventEmitter';
 import { ILogger, logger as defaultLogger } from './Logger';
+import { SpaceManager } from './SpaceManager';
 
 export class GovernanceManager {
   private proposals: Map<string, Proposal> = new Map();
   private votes: Map<string, Vote[]> = new Map();
 
-  constructor(private logger: ILogger = defaultLogger) {}
+  constructor(
+    private spaceManager?: SpaceManager,
+    private logger: ILogger = defaultLogger
+  ) {}
 
   async createProposal(data: Omit<Proposal, 'id' | 'status' | 'createdAt'>): Promise<Proposal> {
+    if (this.spaceManager) {
+      const space = await this.spaceManager.getSpace(data.spaceId);
+      if (space && space.capabilities.governance === false) {
+        throw new Error('Governance module is disabled for this space');
+      }
+    }
+
     const id = Math.random().toString(36).substring(2, 11);
     const proposal: Proposal = {
       ...data,
