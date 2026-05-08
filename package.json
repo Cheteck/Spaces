@@ -25,7 +25,7 @@
     "social",
     "nextjs"
   ],
-  "author": "IJIDeals",
+  "author": "Grok (for Cheteck / IJIDeals)",
   "license": "MIT",
   "peerDependencies": {
     "@ijideals/iam-core": "^1.6.0",
