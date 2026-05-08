@@ -1,3 +1,4 @@
+
 export type SpaceRole = 
   | 'OWNER' 
   | 'ADMIN' 
@@ -51,6 +52,7 @@ export interface SpaceCapabilities {
   jobs?: boolean;
   media?: boolean;
   subscriptions?: boolean;
+  [key: string]: boolean | undefined;
 }
 
 export interface Space {
@@ -178,3 +180,4 @@ export * from './governance';
 export * from './resources';
 export * from './charter';
 export * from './profile';
+export * from './moderation';
