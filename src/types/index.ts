@@ -177,3 +177,4 @@ export * from './impact';
 export * from './governance';
 export * from './resources';
 export * from './charter';
+export * from './profile';
