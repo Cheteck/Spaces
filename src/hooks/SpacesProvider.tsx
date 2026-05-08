@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 import { SpaceManager } from '../core/SpaceManager';
 import { MembershipManager } from '../core/MembershipManager';
 import { GovernanceManager } from '../core/GovernanceManager';
 import { ImpactManager } from '../core/ImpactManager';
 import { ISpaceAdapter, IMembershipAdapter } from '../adapters';
 import { MemorySpaceAdapter, MemoryMembershipAdapter } from '../adapters/MemoryAdapter';
+import { ActorContext } from '../types';
 
 interface SpacesContextValue {
   spaceManager: SpaceManager;
@@ -12,6 +13,8 @@ interface SpacesContextValue {
   governanceManager: GovernanceManager;
   impactManager: ImpactManager;
   iam?: any;
+  currentActor: ActorContext | null;
+  setActor: (actor: ActorContext | null) => void;
 }
 
 const SpacesContext = createContext<SpacesContextValue | undefined>(undefined);
@@ -21,14 +24,18 @@ export interface SpacesProviderProps {
   spaceAdapter?: ISpaceAdapter;
   membershipAdapter?: IMembershipAdapter;
   iam?: any;
+  initialActor?: ActorContext;
 }
 
 export const SpacesProvider: React.FC<SpacesProviderProps> = ({ 
   children, 
   spaceAdapter, 
   membershipAdapter,
-  iam 
+  iam,
+  initialActor
 }) => {
+  const [currentActor, setActor] = useState<ActorContext | null>(initialActor || null);
+
   const value = useMemo(() => {
     const sAdapter = spaceAdapter || new MemorySpaceAdapter();
     const mAdapter = membershipAdapter || new MemoryMembershipAdapter();
@@ -38,9 +45,11 @@ export const SpacesProvider: React.FC<SpacesProviderProps> = ({
       membershipManager: new MembershipManager(mAdapter),
       governanceManager: new GovernanceManager(),
       impactManager: new ImpactManager(),
-      iam
+      iam,
+      currentActor,
+      setActor
     };
-  }, [spaceAdapter, membershipAdapter, iam]);
+  }, [spaceAdapter, membershipAdapter, iam, currentActor]);
 
   return (
     <SpacesContext.Provider value={value}>
