@@ -3,8 +3,8 @@ import { ISpaceAdapter, IMembershipAdapter } from '../adapters';
 
 const ROLE_PERMISSIONS: Record<SpaceRole, string[]> = {
   OWNER: ['*'],
-  ADMIN: ['space.manage', 'member.manage', 'role.manage', 'post.create', 'post.moderate', 'insight.view', 'invite.create'],
-  EDITOR: ['post.create', 'post.edit_own', 'media.upload'],
+  ADMIN: ['space.manage', 'member.manage', 'role.manage', 'post.create', 'post.moderate', 'insight.view', 'invite.create', 'impersonate'],
+  EDITOR: ['post.create', 'post.edit_own', 'media.upload', 'impersonate'],
   MODERATOR: ['post.moderate', 'member.list', 'report.view'],
   SUBSCRIBER: ['post.view', 'comment.create'],
   GUARDIAN: ['space.manage', 'impact.report', 'governance.propose'],
@@ -37,6 +37,10 @@ export class PermissionManager {
     return roles.includes('*') || roles.includes(permissionKey);
   }
 
+  async canImpersonate(userId: string, spaceId: string): Promise<boolean> {
+    return this.hasPermission(userId, spaceId, 'impersonate');
+  }
+
   async getPermissions(userId: string, spaceId: string): Promise<SpacePermissions> {
     const check = (key: string) => this.hasPermission(userId, spaceId, key);
     
@@ -54,7 +58,8 @@ export class PermissionManager {
       canManageBoutique: await check('product.manage'),
       canAccessChat: await check('chat.access'),
       canAccessProducts: await check('product.view'),
-      canAccessAnalytics: await check('insight.view')
+      canAccessAnalytics: await check('insight.view'),
+      canImpersonate: await check('impersonate')
     };
   }
 
