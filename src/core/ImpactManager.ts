@@ -1,13 +1,24 @@
 import { ImpactReport, SDG } from '../types';
 import { events } from '../events/EventEmitter';
 import { ILogger, logger as defaultLogger } from './Logger';
+import { SpaceManager } from './SpaceManager';
 
 export class ImpactManager {
   private reports: Map<string, ImpactReport> = new Map();
 
-  constructor(private logger: ILogger = defaultLogger) {}
+  constructor(
+    private spaceManager?: SpaceManager,
+    private logger: ILogger = defaultLogger
+  ) {}
 
   async reportImpact(data: Omit<ImpactReport, 'id' | 'reportedAt'>): Promise<ImpactReport> {
+    if (this.spaceManager) {
+      const space = await this.spaceManager.getSpace(data.spaceId);
+      if (space && space.capabilities.impact_tracking === false) {
+        throw new Error('Impact tracking is disabled for this space');
+      }
+    }
+
     const id = Math.random().toString(36).substring(2, 11);
     const report: ImpactReport = {
       ...data,
